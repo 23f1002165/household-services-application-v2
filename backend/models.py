@@ -28,19 +28,19 @@ class Role(db.Model, RoleMixin):
 class UserRoles(db.Model):
     __tablename__ = 'user_roles'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.String, db.ForeignKey('users.id'))
-    role_id = db.Column(db.String, db.ForeignKey('roles.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
 class ProfessionalProfile(db.Model):
     __tablename__ = 'professional_profiles'
     id = db.Column(db.Integer, primary_key=True)
     professional_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     experience = db.Column(db.Integer, nullable=False)
-    service_type = db.Column(db.String, db.ForeignKey('services.name', ondelete='CASCADE'),nullable=False)
+    service_type_id = db.Column(db.Integer, db.ForeignKey('services.id', ondelete='CASCADE'),nullable=False)
     is_verified = db.Column(db.Boolean, default=False)
     documents=db.Column(db.String, nullable=False)
 
-    professional = db.relationship('User', backref='profile', lazy=True)
+    professional = db.relationship('User', backref='professional', lazy=True, uselist=False)
 
 class Service(db.Model):
     __tablename__ = 'services'
@@ -59,21 +59,10 @@ class ServiceRequest(db.Model):
     date_of_request = db.Column(db.DateTime, nullable=False)
     date_of_completion = db.Column(db.DateTime, nullable=True)
     status = db.Column(db.String, default='requested')
+    rating = db.Column(db.Integer)
+    comments = db.Column(db.Text)
+    review_created_at = db.Column(db.DateTime, default=datetime)
 
     service = db.relationship('Service', backref='service_requests', lazy=True)
     customer = db.relationship('User', foreign_keys=[customer_id], backref='customer_requests', lazy=True)
     professional = db.relationship('User', foreign_keys=[professional_id], backref='professional_requests', lazy=True)
-
-class Review(db.Model):
-    __tablename__ = 'reviews'
-    id = db.Column(db.Integer, primary_key=True)
-    service_request_id = db.Column(db.Integer, db.ForeignKey('service_requests.id'), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    professional_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
-    comments = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime)
-
-    service_request = db.relationship('ServiceRequest', backref='reviews', lazy=True)
-    customer = db.relationship('User', foreign_keys=[customer_id], lazy=True)
-    professional = db.relationship('User', foreign_keys=[professional_id], lazy=True)
