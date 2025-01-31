@@ -1,5 +1,5 @@
 from flask import current_app as app, jsonify, request, render_template
-from flask_security import auth_required, verify_password, hash_password
+from flask_security import verify_password, hash_password
 from backend.models import db
 
 datastore = app.security.datastore
