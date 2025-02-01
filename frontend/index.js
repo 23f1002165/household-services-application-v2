@@ -1,4 +1,5 @@
 import router from "./utils/router.js"
+import store from "./utils/store.js"
 import Navbar from "./components/Navbar.js"
 
 const app = new Vue({
@@ -14,4 +15,5 @@ const app = new Vue({
         Navbar
     },
     router,
+    store,
 })

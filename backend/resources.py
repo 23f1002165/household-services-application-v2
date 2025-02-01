@@ -33,4 +33,16 @@ class Services(Resource):
         db.session.commit()
         return {"message": "Service Created"}
     
+class Servicename(Resource):
+    @auth_required('token')
+    @marshal_with(service_fields)
+    def get(self, name):
+        servname = Service.query.filter_by(name=name).first()
+
+        if not servname:
+            return {"message" : "not found"}, 404
+        return servname
+    
+    
 api.add_resource(Services, "/services")
+api.add_resource(Servicename, "/service/<string:name>")
