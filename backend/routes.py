@@ -48,7 +48,7 @@ def register():
         return jsonify({"message" : "user already exists"}), 404
 
     try :
-        datastore.create_user(email = email, password = hash_password(password), roles = [role], active = True)
+        datastore.create_user(email = email, password = hash_password(password), username = email, address = email, pincode = email, phone_number = email, roles = [role], active = True)
         db.session.commit()
         return jsonify({"message" : "user created"}), 200
     except:
