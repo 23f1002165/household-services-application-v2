@@ -1,7 +1,9 @@
-from flask import request
+from flask import request, current_app as app
 from flask_restful import Api, Resource, fields, marshal_with
 from flask_security import auth_required, roles_required, current_user
 from backend.models import Service, db
+
+cache = app.cache
 
 api = Api(prefix='/api')
 
@@ -14,8 +16,9 @@ service_fields = {
 }
 
 class Services(Resource):
-    @marshal_with(service_fields)
     @auth_required('token')
+    @cache.cached(timeout = 5, key_prefix = "services")
+    @marshal_with(service_fields)
     def get(self):
         all_services = Service.query.all()
         return all_services
@@ -35,6 +38,7 @@ class Services(Resource):
     
 class Servicename(Resource):
     @auth_required('token')
+    @cache.memoize(timeout = 5)
     @marshal_with(service_fields)
     def get(self, name):
         servname = Service.query.filter_by(name=name).first()

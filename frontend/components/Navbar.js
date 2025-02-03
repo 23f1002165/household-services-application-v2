@@ -6,9 +6,10 @@ export default {
         <router-link v-if="!$store.state.loggedIn" to='/register'>Register</router-link>
 
         <router-link v-if="$store.state.loggedIn && $store.state.role == 'Admin'" to='/Admin'>Dashboard</router-link>
+        <router-link v-if="$store.state.loggedIn && $store.state.role == 'Admin'" to='/Admin/add_service'>Service</router-link>
         <router-link v-if="$store.state.loggedIn && $store.state.role == 'Customer'" to='/Customer'>Dashboard</router-link>
         
-        <button class="btn btn-secondary" v-if="$store.state.loggedIn" @click="$store.commit('logout')">Logout</button>
+        <button class="btn btn-primary" v-if="$store.state.loggedIn" @click="$store.commit('logout')">Logout</button>
     </div>
     `
 }

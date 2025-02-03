@@ -1,12 +1,30 @@
-from flask import current_app as app, jsonify, request, render_template
+from flask import current_app as app, jsonify, request, render_template, send_file
 from flask_security import verify_password, hash_password
 from backend.models import db
+from datetime import datetime
+from backend.celery.tasks import create_csv
+from celery.result import AsyncResult
 
 datastore = app.security.datastore
+cache = app.cache
 
 @app.get('/')
 def home():
     return render_template('index.html')
+    
+@app.get('/create-csv')
+def createCSV():
+    task = create_csv.delay()
+    return {'task_id' : task.id}, 200
+
+@app.get('/get-csv/<id>')
+def getCSV(id):
+    result = AsyncResult(id)
+
+    if result.ready():
+        return send_file(f'./backend/celery/user-downloads/{result.result}'), 200
+    else:
+        return {'message' : 'task not ready'}, 405
 
 @app.post('/login')
 def login():
