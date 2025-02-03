@@ -26,7 +26,7 @@ export default {
                 localStorage.setItem('user', JSON.stringify(data))
 
                 this.$store.commit('setUser')
-                this.$router.push('/home')
+                this.$router.push(`/${data.role}`)
             }
         }
     }
