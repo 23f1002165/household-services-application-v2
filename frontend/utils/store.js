@@ -14,6 +14,7 @@ const store = new Vuex.Store({
                 state.role = user.role;
                 state.loggedIn = true;
                 state.user_id = user.id;
+                state.user_active = user.active;
              }
             } catch {
                 console.warn('not logged in')
@@ -24,6 +25,7 @@ const store = new Vuex.Store({
             state.role = null;
             state.loggedIn = false;
             state.user_id = null;
+            state.user_active = null;
             localStorage.removeItem('user')
         }
     },

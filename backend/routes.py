@@ -33,13 +33,10 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    
-    if not email or not password:
-        return jsonify({"message": "Email or Password Not Provided"}), 404
 
     user = datastore.find_user(email=email)
-    if not user:
-        return jsonify({"message": "User Not Found"}), 404
+    if not user and email and password:
+        return jsonify({"message": "You've entered incorrect email ID. Please try again"}), 404
 
     if verify_password(password, user.password):
         return jsonify(
@@ -51,7 +48,7 @@ def login():
                 "active": user.active,
             }
         )
-    return jsonify({"message": "Wrong Password"}), 400
+    return jsonify({"message": "You've entered incorrect password. Please try again"}), 400
 
 @app.post('/register')
 def register():
