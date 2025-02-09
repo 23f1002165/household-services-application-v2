@@ -1,6 +1,6 @@
 export default {
     template : `
-    <div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="d-flex justify-content-center align-items-center" style="padding: 60px;">
         <div>
             <div v-if="showError" class="alert alert-danger text-center">
                 {{ feedback }}

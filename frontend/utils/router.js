@@ -6,10 +6,11 @@ import RegisterPage from "../pages/RegisterPage.js";
 import CustomerPage from "../pages/CustomerPage.js";
 import AddServicePage from "../pages/AddServicePage.js";
 import AdminPage from "../pages/AdminPage.js";
+import HomePage from "../pages/HomePage.js";
 import ServicePage from "../pages/ServicePage.js";
 
 const routes = [
-    {path : '/', component : Home},
+    {path : '/', component : HomePage},
     {path : '/login', component : LoginPage},
     {path : '/register', component : RegisterPage},
     {path : '/Customer', component : CustomerPage, meta : {requiresLogin : true}},
