@@ -1,18 +1,13 @@
 export default {
     template : `
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="padding: 15px 40px;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="padding: 20px 20px;">
             <div class="container-fluid">
                 <a class="navbar-brand align-items-center" href="/">
                     <span style="font-size: 18px; background: black; color: white; padding: 5px 5px; border-radius: 5px;" class="bg-black text-white rounded">A to Z</span>
-                    <span class="fw-bold">Household Services</span>
+                    <span class="fw-bold" style="font-weight: 550;">Household Services</span>
                 </a>
-
-                <div class="d-flex flex-grow-1 justify-content-center">
-                    <input class="form-control w-50" type="search" placeholder="Search for 'Facial'">
-                </div>
     
                 <div>
-                    <router-link v-if="!$store.state.loggedIn" to="/register" style="text-decoration: none; color: black; padding: 8px 16px;">Register as professional</router-link>
                     <router-link v-if="!$store.state.loggedIn" to="/login" style="text-decoration: none; color: black; padding: 8px 16px;">Login</router-link>
                     <!-- Admin Links -->
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Admin'" to="/Admin" style="text-decoration: none; color: black; padding: 8px 16px;">Dashboard</router-link>
