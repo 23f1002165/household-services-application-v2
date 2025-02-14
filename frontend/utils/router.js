@@ -1,8 +1,6 @@
-const Home = {
-    template : `<h1> this is home </h1>`
-}
 import LoginPage from "../pages/LoginPage.js";
-import RegisterPage from "../pages/RegisterPage.js";
+import CustomerRegisterPage from "../pages/CustomerRegisterPage.js";
+import ProfessionalRegisterPage from "../pages/ProfessionalRegisterPage.js";
 import AboutPage from "../pages/AboutPage.js";
 import CustomerPage from "../pages/CustomerPage.js";
 import AddServicePage from "../pages/AddServicePage.js";
@@ -13,7 +11,8 @@ import ServicePage from "../pages/ServicePage.js";
 const routes = [
     {path : '/', component : HomePage},
     {path : '/login', component : LoginPage},
-    {path : '/register', component : RegisterPage},
+    {path : '/register', component : CustomerRegisterPage},
+    {path : '/professional/register', component : ProfessionalRegisterPage},
     {path : '/about', component : AboutPage},
     {path : '/Customer', component : CustomerPage, meta : {requiresLogin : true}},
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},

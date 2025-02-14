@@ -53,21 +53,18 @@ def login():
 @app.post('/register')
 def register():
     data = request.get_json()
+    username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    role = data.get('role')
-
-    if not email or not password or role not in ['Admin', 'User', 'Professional']:
-        return jsonify({"message" : "invalid inputs"}), 404
+    phone_number = data.get('phone_number')
+    address = data.get('phone_number')
+    pincode = data.get('pincode')
     
     user = datastore.find_user(email = email)
     if user:
-        return jsonify({"message" : "user already exists"}), 404
+        return jsonify({"message" : "User already exists"}), 404
 
-    try :
-        datastore.create_user(email = email, password = hash_password(password), username = email, address = email, pincode = email, phone_number = email, roles = [role], active = True)
-        db.session.commit()
-        return jsonify({"message" : "user created"}), 200
-    except:
-        db.session.rollback()
-        return jsonify({"message" : "error creating user"}), 400
+    datastore.create_user(email = email, password = hash_password(password), username = username, address = address, pincode = pincode, phone_number = phone_number, roles=['Customer'])
+    db.session.commit()
+    return jsonify({"message" : "User created"}), 200
+    

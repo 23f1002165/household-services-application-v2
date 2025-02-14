@@ -44,13 +44,13 @@ export default {
           <div>
             <h5>For customers</h5>
             <ul style="list-style: none; padding: 0; color: #666;">
-              <li @click="$router.push('/service/Plumbing')" style="cursor: pointer;">Categories for you</li>  
+              <li @click="$router.push('/service/Plumbing')" style="cursor: pointer;">Book a service</li>  
             </ul>
           </div>
           <div>
             <h5>For partners</h5>
             <ul style="list-style: none; padding: 0; color: #666;">
-              <li @click="$router.push('/register')" style="cursor: pointer;">Register as a professional</li>
+              <li @click="$router.push('/professional/register')" style="cursor: pointer;">Register as a professional</li>
             </ul>
           </div>
         </div>
