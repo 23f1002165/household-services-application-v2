@@ -1,7 +1,7 @@
 from flask import request, current_app as app
 from flask_restful import Api, Resource, fields, marshal_with
 from flask_security import SQLAlchemyUserDatastore, hash_password, auth_required, roles_required, current_user
-from backend.models import User, Service, ProfessionalProfile, db
+from backend.models import User, Service, ProfessionalProfile, ServiceRequest, db
 
 cache = app.cache
 userdatastore : SQLAlchemyUserDatastore = app.security.datastore
@@ -37,13 +37,14 @@ class Services(Resource):
     
 class Servicename(Resource):
     @auth_required('token')
-    @cache.memoize(timeout = 5)
+    #@cache.memoize(timeout = 5)
     @marshal_with(service_fields)
     def get(self, name):
-        servname = Service.query.filter_by(name=name).first()
+        servname = Service.query.filter(Service.name.ilike(name)).first()
 
         if not servname:
-            return {"message" : "not found"}, 404
+            return {"message" : "Service not found"}, 404
+        
         return servname
     
 professional_fields = {

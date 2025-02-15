@@ -5,7 +5,7 @@ export default {
     <div style="margin: auto; padding: 20px;">
         <div style="margin-left: 80px; max-width: 1100px; margin-top: 20px;" class="my-5">
             <h1 class="fw-bold">Discover Leading Home Services Near Me</h1>
-            <div style="margin-top: 30px; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0;">
+            <div style="margin-top: 40px; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0;">
                 <p class="text-muted">Tailored Services To Meet Your Needs</p>
                 
                 <div style="display: grid; grid-template-columns: repeat(3, minmax(200px, 1fr)); gap: 40px; margin-top: 20px; justify-content: center;">
@@ -59,8 +59,5 @@ export default {
         })
 
         this.all_services = await res.json()
-    },
-    components : {
-        ServiceCard,
     }
 }

@@ -2,7 +2,9 @@ import LoginPage from "../pages/LoginPage.js";
 import CustomerRegisterPage from "../pages/CustomerRegisterPage.js";
 import ProfessionalRegisterPage from "../pages/ProfessionalRegisterPage.js";
 import AboutPage from "../pages/AboutPage.js";
+import OtherServicesPage from "../pages/OtherServicesPage.js";
 import CustomerPage from "../pages/CustomerPage.js";
+import MyBookingsPage from "../pages/MyBookingsPage.js";
 import AddServicePage from "../pages/AddServicePage.js";
 import AdminPage from "../pages/AdminPage.js";
 import HomePage from "../pages/HomePage.js";
@@ -14,7 +16,9 @@ const routes = [
     {path : '/register', component : CustomerRegisterPage},
     {path : '/professional/register', component : ProfessionalRegisterPage},
     {path : '/about', component : AboutPage},
+    {path : '/other_services', component : OtherServicesPage},
     {path : '/Customer', component : CustomerPage, meta : {requiresLogin : true}},
+    {path : '/Customer/bookings', component : MyBookingsPage, meta : {requiresLogin : true}},
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/Admin/add_service', component : AddServicePage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/service/:name', component : ServicePage, props : true, meta : {requiresLogin : true}},
@@ -23,7 +27,10 @@ const routes = [
 import store from './store.js'
 
 const router = new VueRouter({
-    routes
+    routes,
+    scrollBehavior(to, from, savedPosition) {
+        return { x: 0, y: 0 };
+    }
 })
 
 router.beforeEach((to, from, next) => {
