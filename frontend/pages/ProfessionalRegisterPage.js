@@ -13,7 +13,7 @@ export default {
                 <div class="card p-4 shadow-lg" style="width: 500px; border-radius: 20px;">
                     
                     <h4 class="text mb-3">Share your email ID</h4>
-                    <p class="text text-muted">and we'll reach out via your Account.</p>
+                    <p class="text text-muted">and we'll reach out via your account dashboard.</p>
                     <br>
 
                     <form @submit.prevent="professionalRegister">
