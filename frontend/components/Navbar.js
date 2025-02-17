@@ -21,7 +21,7 @@ export default {
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Customer'" to="/Customer" style="text-decoration: none; color: black; padding: 8px 16px;">Dashboard</router-link>
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Customer'" to="/Customer/bookings" style="text-decoration: none; color: black; padding: 8px 16px;">My bookings</router-link>
                     <!-- Logout Button -->
-                    <button class="btn-link" style="background: none; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; color: black; font-size: 16px;" v-if="$store.state.loggedIn" @click="logout">Logout</button>
+                    <button class="btn-link" style="background: none; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; color: black; font-size: 16px; outline: none;" v-if="$store.state.loggedIn" @click="logout">Logout</button>
                 </div>
             </div>
         </nav>

@@ -22,7 +22,7 @@ export default {
             <div style="margin-top: 10px; padding: 20px; border-radius: 10px;">
                 <div style="display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); justify-content: center; gap: 40px; margin-top: 20px;">
                     <div v-for="service in all_services" :key="service.id" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
-                        <div @click="$router.push('/service/'+service.name)" style="cursor: pointer; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background-color: rgb(228, 231, 231);">
+                        <div @click="$router.push('/mybookings/'+service.name)" style="cursor: pointer; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background-color: rgb(228, 231, 231);">
                             <img src="/static/images/Cart.jpg" style="width: 50px; height: 50px;">
                         </div>
                         <div style="cursor: pointer; margin-top: 10px; font-size: 14px; font-weight: 500;">{{ service.name }}</div>

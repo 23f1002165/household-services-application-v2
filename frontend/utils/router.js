@@ -5,6 +5,7 @@ import AboutPage from "../pages/AboutPage.js";
 import OtherServicesPage from "../pages/OtherServicesPage.js";
 import CustomerPage from "../pages/CustomerPage.js";
 import MyBookingsPage from "../pages/MyBookingsPage.js";
+import RecentlyBookedPage from "../pages/RecentlyBookedPage.js";
 import AddServicePage from "../pages/AddServicePage.js";
 import AdminPage from "../pages/AdminPage.js";
 import HomePage from "../pages/HomePage.js";
@@ -22,6 +23,7 @@ const routes = [
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/Admin/add_service', component : AddServicePage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/service/:name', component : ServicePage, props : true, meta : {requiresLogin : true}},
+    {path : '/mybookings/:name', component : RecentlyBookedPage, props : true, meta : {requiresLogin : true}},
 ]
 
 import store from './store.js'

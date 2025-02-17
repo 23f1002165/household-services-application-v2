@@ -7,7 +7,7 @@ export default {
           <div style="margin-top: 20px; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0;">
             <p class="text-muted">What are you looking for?
               <span style="margin-left: 180px;">
-                <button @click="$router.push('/service/Plumbing')" style="padding: 10px 20px; border: 1px solid #e0e0e0; background-color: white; color: black; border-radius: 5px; font-size: 14px;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">See all</button>
+                <button @click="$router.push('/Customer')" style="padding: 10px 20px; border: 1px solid #e0e0e0; background-color: white; color: black; border-radius: 5px; font-size: 14px;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">See all</button>
               </span>
             </p>
           

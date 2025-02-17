@@ -45,7 +45,7 @@ class ProfessionalProfile(db.Model):
 class Service(db.Model):
     __tablename__ = 'services'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, unique=True)
+    name = db.Column(db.String, nullable=False)
     price = db.Column(db.Float, nullable=False)
     time_required = db.Column(db.Integer, nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -56,12 +56,12 @@ class ServiceRequest(db.Model):
     service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     professional_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    date_of_request = db.Column(db.DateTime, nullable=False)
-    date_of_completion = db.Column(db.DateTime, nullable=True)
+    date_of_request = db.Column(db.String, nullable=False)
+    date_of_completion = db.Column(db.String, nullable=True)
     status = db.Column(db.String, default='requested')
     rating = db.Column(db.Integer)
     comments = db.Column(db.Text)
-    review_created_at = db.Column(db.DateTime, default=datetime)
+    review_created_at = db.Column(db.String)
 
     service = db.relationship('Service', backref='service_requests', lazy=True)
     customer = db.relationship('User', foreign_keys=[customer_id], backref='customer_requests', lazy=True)

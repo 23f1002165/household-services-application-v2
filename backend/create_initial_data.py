@@ -14,8 +14,10 @@ with app.app_context():
     if not Service.query.filter_by(name='Plumbing').first():
         plumbing_service = Service(name='Plumbing', price=100.0, time_required=60, description='Fixing leaks and pipes')
         ac_service = Service(name='AC & Appliance Repair', price=800.0, time_required=30, description='Foam-jet AC service')
+        sink_service = Service(name='Basin & sink', price=150.0, time_required=30, description='Waste pipe replacement')
         db.session.add(plumbing_service)
         db.session.add(ac_service)
+        db.session.add(sink_service)
     db.session.commit()
 
     if not userdatastore.find_user(email='admin@iitm.ac.in'):
