@@ -7,6 +7,7 @@ import CustomerPage from "../pages/CustomerPage.js";
 import ProfessionalPage from "../pages/ProfessionalPage.js";
 import MyBookingsPage from "../pages/MyBookingsPage.js";
 import RecentlyBookedPage from "../pages/RecentlyBookedPage.js";
+import ServivceHistoryPage from "../pages/ServiceHistoryPage.js";
 import AddServicePage from "../pages/AddServicePage.js";
 import AdminPage from "../pages/AdminPage.js";
 import HomePage from "../pages/HomePage.js";
@@ -22,6 +23,7 @@ const routes = [
     {path : '/Customer', component : CustomerPage, meta : {requiresLogin : true}},
     {path : '/Customer/bookings', component : MyBookingsPage, meta : {requiresLogin : true}},
     {path : '/Professional', component : ProfessionalPage, meta : {requiresLogin : true}},
+    {path : '/Professional/history', component : ServivceHistoryPage, meta : {requiresLogin : true}},
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/Admin/add_service', component : AddServicePage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/service/:name', component : ServicePage, props : true, meta : {requiresLogin : true}},

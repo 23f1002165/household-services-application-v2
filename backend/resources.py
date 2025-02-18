@@ -48,13 +48,24 @@ class Servicename(Resource):
         
         return servname
     
+customer_fields = {
+    "email": fields.String,
+    "username": fields.String,
+    "address": fields.String,
+    "pincode": fields.String,
+    "phone_number": fields.String,
+}
+    
 servicerequest_fields = {
     "id": fields.Integer,
     "service_id": fields.Integer,
     "customer_id": fields.Integer,
+    "professional_id": fields.Integer,
     "date_of_request": fields.String,
     "status": fields.String,
     "service": fields.Nested(service_fields),
+    "customer": fields.Nested(customer_fields),
+    "professional": fields.Nested(customer_fields),
 }
     
 class ServiceRequests(Resource):
@@ -117,14 +128,6 @@ class Professional(Resource):
         db.session.commit()
         return {"message": "Professional Request Sent for Approval"}
     
-customer_fields = {
-    "email": fields.String,
-    "username": fields.String,
-    "address": fields.String,
-    "pincode": fields.String,
-    "phone_number": fields.String,
-}
-    
 servicerequestprof_fields = {
     "id": fields.Integer,
     "service_id": fields.Integer,
@@ -137,7 +140,7 @@ servicerequestprof_fields = {
 }
     
 class ServiceRequestProf(Resource):
-    @auth_required("token")
+    #@auth_required("token")
     @marshal_with(servicerequestprof_fields)
     def get(self, id):
         profile = ProfessionalProfile.query.filter_by(professional_id=id).first()

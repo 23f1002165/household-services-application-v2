@@ -3,18 +3,23 @@ export default {
     <div style="margin: auto; padding: 20px;">
             <div style="width: 550px; margin-left: 350px; padding: 20px;">
                 <h3 class="fw-bold">My Bookings</h3>
-                <div style="width: 550px; height: 1px; background-color: black; margin: 20px auto;"></div>   
-                <div v-for="request in all_requests" :key="request.id" v-if="request.status === 'requested' || request.status === 'assigned'">   
+                <div style="width: 550px; height: 1px; background-color: black; margin: 20px auto;"></div>
+                <div class="text-center" v-if="all_requests.length === 0">
+                    <h3 class="fw-bold">No bookings yet.</h3>
+                    <p class="text-muted m-0">Looks like you haven’t experienced quality services at home.</p>
+                    <div style="color: #6f42c1; cursor: pointer;" @click="$router.push('/Customer')">Explore our services →</div>
+                </div>
+                <div v-for="request in all_requests" :key="request.id" v-if="request.status === 'requested' || request.status === 'assigned' || request.status === 'started'">   
                     <div class="d-flex align-items-center">
                         <img src="/static/images/Home.jpg" style="width: 70px; height: 70px;"/>
                         <div style="margin: 10px 10px;">
                             <h3 class="mb-3">{{ request.service.name }}</h3>
-                            <p class="text-muted m-0">Slot {{ request.date_of_request }} • ₹{{ request.service.price }}</p>
+                            <p class="text-muted m-0">{{ request.service.description }} • ₹{{ request.service.price }} total amount</p>
                         </div>
                     </div>
-                    <div style="width: 550px; height: 1px; background-color: rgb(228, 228, 228);"></div>   
-                    <p class="text-muted m-0" style="margin: 10px 10px;">• {{ request.service.description }}</p>
+                    <div style="width: 550px; height: 1px; background-color: rgb(228, 228, 228);"></div>
                     <div v-if="request.status === 'requested'">
+                        <p class="text-muted">Service will start on {{ request.date_of_request.split(" ")[0] }} at {{ request.date_of_request.split(" ")[1] }} {{ request.date_of_request.split(" ")[2] }}</p>
                         <div class="d-flex justify-content-between" style="width: 550px; margin: 10px 10px; gap: 10px;">
                             <button v-if="!request.show" class="w-50" style="padding: 10px 20px; border: 1px solid #e0e0e0; background-color: white; color: black; border-radius: 5px; font-size: 15px; outline: none;" @click="slotSelection(request)" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
                             {{ request.showSlots ? 'Close' : 'Reshedule this booking' }}
@@ -24,7 +29,16 @@ export default {
                             </button>
                         </div>
                     </div>
+                    <div v-if="request.status === 'started'">
+                        <div class="d-flex align-items-center" style="width: 550px; gap: 10px;">
+                            <p class="text-muted" style="margin: 10px 1px;">Started offering the service</p>
+                            <button v-if="!request.showSlots" style="border: none; background-color: white; color: #6f42c1; font-size: 15px; outline: none;" @click="show(request)">
+                            {{ request.show ? 'Close' : 'View Details' }}
+                            </button>
+                        </div>
+                    </div>
                     <div v-if="request.status === 'assigned'">
+                        <p class="text-muted">Service will start on {{ request.date_of_request.split(" ")[0] }} at {{ request.date_of_request.split(" ")[1] }} {{ request.date_of_request.split(" ")[2] }}</p>
                         <div class="d-flex align-items-center" style="width: 550px; margin: 10px 10px; gap: 10px;">
                             <p class="fw-bold mb-0">Technician Assigned</p>
                             <button v-if="!request.showSlots" style="padding: 10px 20px; border: none; background-color: white; color: #6f42c1; font-size: 15px; outline: none;" @click="show(request)">
@@ -41,7 +55,20 @@ export default {
                         </div>
                     </div>
                     <div style="margin: 20px auto;" v-if="request.show">
-                        <p class="text-muted">Service at the earliest available time slot</p>
+                        <div class="p-3" style="width: 550px; margin: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                            <div class="d-flex align-items-center">
+                                <img src="/static/images/Profile.jpg" class="me-3" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                <div>
+                                    <h6 class="mb-0">{{ request.professional.username }}</h6>
+                                    <p class="text-muted mb-0">Service Rating: <span class="text-success">⭐ 4.85</span></p>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-muted"> 📞 {{ request.professional.phone_number }}</p>
+                            <div class="d-flex mt-3">
+                                <button class="btn btn-link" style="background: #6f42c1; border: 1px solid #6f42c1; border-radius: 5px; color: white; text-decoration: none; font-size: 15px; outline: none;" @click="requestOTP(request)">Get Start OTP</button>
+                                <p style="margin: 2px 20px;" v-if="request.otp">Verification code : {{ request.id }}{{ request.service_id }}{{ request.customer_id }}{{ request.professional_id }}</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div style="margin: 20px auto;" v-if="request.showSlots">
@@ -105,16 +132,34 @@ export default {
         }
     },
     methods: {
-        slotSelection(request) {
+        slotSelection(request){
             request.showSlots = !request.showSlots;
-            if (request.showSlots) {
+            if (request.showSlots){
                 this.selectedDate = request.date_of_request.split(" ")[0];
                 this.selectedSlot = null;
                 this.availableSlots = this.generateAvailableSlots(this.selectedDate);
             }
         },
-        show(request) {
+        show(request){
             request.show = !request.show;
+        },
+        async requestOTP(request){
+            request.otp = !request.otp;
+            const res = await fetch(`${location.origin}/api/request/edit/${request.id}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authentication-Token': this.$store.state.auth_token
+                    },
+                    body: JSON.stringify({'professional_id': request.professional_id, 'date_of_request': request.date_of_request, 'date_of_completion': null, 'status': 'started'})
+                })
+            const data = await res.json()
+            if(res.ok){
+                this.$router.push('/Customer/bookings')
+                alert(`Started offering the ${request.service.name} service for ₹${request.service.price}.`);
+                location.reload();
+            }
         },
         generateNextThreeDays(){
             const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -130,7 +175,7 @@ export default {
             }
             return dateArray;
         },
-        generateAvailableSlots(selectedDate) {
+        generateAvailableSlots(selectedDate){
             const now = new Date();
             const selectedDay = new Date(selectedDate);
             const isToday = now.toDateString() === selectedDay.toDateString();
@@ -212,7 +257,8 @@ export default {
             this.all_requests = this.all_requests.map(request => ({
                 ...request,
                 showSlots: false,
-                show: false
+                show: false,
+                otp: false,
             }))
         }
     }
