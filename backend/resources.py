@@ -80,6 +80,7 @@ class EditServiceRequest(Resource):
     def post(self, id):
         data = request.get_json()
         service_request = ServiceRequest.query.get(id)
+        service_request.professional_id = data.get('professional_id')
         service_request.date_of_request = data.get('date_of_request')
         service_request.date_of_completion = data.get('date_of_completion')
         service_request.status = data.get('status')
@@ -115,9 +116,37 @@ class Professional(Resource):
         db.session.add(professional)
         db.session.commit()
         return {"message": "Professional Request Sent for Approval"}
+    
+customer_fields = {
+    "email": fields.String,
+    "username": fields.String,
+    "address": fields.String,
+    "pincode": fields.String,
+    "phone_number": fields.String,
+}
+    
+servicerequestprof_fields = {
+    "id": fields.Integer,
+    "service_id": fields.Integer,
+    "professional_id": fields.Integer,
+    "customer_id": fields.Integer,
+    "date_of_request": fields.String,
+    "status": fields.String,
+    "service": fields.Nested(service_fields),
+    "customer": fields.Nested(customer_fields),
+}
+    
+class ServiceRequestProf(Resource):
+    @auth_required("token")
+    @marshal_with(servicerequestprof_fields)
+    def get(self, id):
+        profile = ProfessionalProfile.query.filter_by(professional_id=id).first()
+        servrequests = ServiceRequest.query.filter_by(service_id=profile.service_type_id).all()
+        return servrequests
 
 api.add_resource(Services, "/services")
 api.add_resource(Servicename, "/service/<string:name>")
 api.add_resource(ServiceRequests, "/request/service/<int:customer_id>", "/request/service")
 api.add_resource(EditServiceRequest, "/request/edit/<int:id>")
 api.add_resource(Professional, "/professional/register")
+api.add_resource(ServiceRequestProf, "/servicerequest/<int:id>")

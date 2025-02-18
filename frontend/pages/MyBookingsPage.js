@@ -164,7 +164,7 @@ export default {
                         'Content-Type': 'application/json',
                         'Authentication-Token': this.$store.state.auth_token
                     },
-                    body: JSON.stringify({'date_of_request': request.date_of_request, 'date_of_completion': today, 'status': 'closed'})
+                    body: JSON.stringify({'professional_id': null,'date_of_request': request.date_of_request, 'date_of_completion': today, 'status': 'cancelled'})
                 })
             const data = await res.json()
             if(res.ok){
@@ -190,7 +190,7 @@ export default {
                         'Content-Type': 'application/json',
                         'Authentication-Token': this.$store.state.auth_token
                     },
-                    body: JSON.stringify({'date_of_request': `${this.selectedDate} ${this.selectedSlot}`, 'date_of_completion': null, 'status': 'requested'})
+                    body: JSON.stringify({'professional_id': null, 'date_of_request': `${this.selectedDate} ${this.selectedSlot}`, 'date_of_completion': null, 'status': 'requested'})
                 })
             const data = await res.json()
             if(res.ok){

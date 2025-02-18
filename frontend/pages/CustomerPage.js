@@ -1,5 +1,3 @@
-import ServiceCard from "../components/ServiceCard.js"
-
 export default {
     template: `
     <div style="margin: auto; padding: 20px;">

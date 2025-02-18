@@ -33,7 +33,7 @@ export default {
     computed: {
         filteredRequests() {
           return this.all_requests.filter(request => {
-            return request.service && request.service.name === this.name && request.status === 'closed';
+            return request.service && request.service.name === this.name && (request.status === 'closed' || request.status === 'cancelled');
           });
         }
     },
