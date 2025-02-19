@@ -102,10 +102,17 @@ professional_fields = {
     "professional_id": fields.Integer,
     "experience": fields.Integer,
     "service_type_id": fields.Integer,
+    "is_verified": fields.Boolean,
     "documents": fields.String,
+    "professional": fields.Nested(customer_fields),
 }
 
 class Professional(Resource):
+    @marshal_with(professional_fields)
+    def get(self):
+        all_professionals = ProfessionalProfile.query.all()
+        return all_professionals
+    
     def post(self):
         data = request.get_json()
         username = data.get('username')
@@ -151,5 +158,5 @@ api.add_resource(Services, "/services")
 api.add_resource(Servicename, "/service/<string:name>")
 api.add_resource(ServiceRequests, "/request/service/<int:customer_id>", "/request/service")
 api.add_resource(EditServiceRequest, "/request/edit/<int:id>")
-api.add_resource(Professional, "/professional/register")
+api.add_resource(Professional, "/professional", "/professional/register")
 api.add_resource(ServiceRequestProf, "/servicerequest/<int:id>")
