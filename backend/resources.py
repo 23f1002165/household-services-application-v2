@@ -71,8 +71,8 @@ servicerequest_fields = {
 class ServiceRequests(Resource):
     @auth_required("token")
     @marshal_with(servicerequest_fields)
-    def get(self, customer_id):
-        all_requests = ServiceRequest.query.filter_by(customer_id=customer_id).all()
+    def get(self):
+        all_requests = ServiceRequest.query.all()
         return all_requests
     
     @auth_required("token")
@@ -87,6 +87,12 @@ class ServiceRequests(Resource):
         return {"message": "Service Request Added"}
     
 class EditServiceRequest(Resource):
+    @auth_required("token")
+    @marshal_with(servicerequest_fields)
+    def get(self, customer_id):
+        all_requests = ServiceRequest.query.filter_by(customer_id=customer_id).all()
+        return all_requests
+    
     @auth_required("token")
     def post(self, id):
         data = request.get_json()
@@ -156,7 +162,7 @@ class ServiceRequestProf(Resource):
 
 api.add_resource(Services, "/services")
 api.add_resource(Servicename, "/service/<string:name>")
-api.add_resource(ServiceRequests, "/request/service/<int:customer_id>", "/request/service")
-api.add_resource(EditServiceRequest, "/request/edit/<int:id>")
+api.add_resource(ServiceRequests, "/request", "/request/service")
+api.add_resource(EditServiceRequest, "/request/service/<int:customer_id>", "/request/edit/<int:id>")
 api.add_resource(Professional, "/professional", "/professional/register")
 api.add_resource(ServiceRequestProf, "/servicerequest/<int:id>")
