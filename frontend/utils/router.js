@@ -19,15 +19,15 @@ const routes = [
     {path : '/register', component : CustomerRegisterPage},
     {path : '/professional/register', component : ProfessionalRegisterPage},
     {path : '/about', component : AboutPage},
-    {path : '/other_services', component : OtherServicesPage},
-    {path : '/Customer', component : CustomerPage, meta : {requiresLogin : true}},
-    {path : '/Customer/bookings', component : MyBookingsPage, meta : {requiresLogin : true}},
-    {path : '/Professional', component : ProfessionalPage, meta : {requiresLogin : true}},
-    {path : '/Professional/history', component : ServivceHistoryPage, meta : {requiresLogin : true}},
+    {path : '/other_services', component : OtherServicesPage, meta : {requiresLogin : true, role : "Customer"}},
+    {path : '/Customer', component : CustomerPage, meta : {requiresLogin : true, role : "Customer"}},
+    {path : '/Customer/bookings', component : MyBookingsPage, meta : {requiresLogin : true, role : "Customer"}},
+    {path : '/Professional', component : ProfessionalPage, meta : {requiresLogin : true, role : "Professional"}},
+    {path : '/Professional/history', component : ServivceHistoryPage, meta : {requiresLogin : true, role : "Professional"}},
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/Admin/add_service', component : AddServicePage, meta : {requiresLogin : true, role : "Admin"}},
-    {path : '/service/:name', component : ServicePage, props : true, meta : {requiresLogin : true}},
-    {path : '/mybookings/:name', component : RecentlyBookedPage, props : true, meta : {requiresLogin : true}},
+    {path : '/service/:name', component : ServicePage, props : true, meta : {requiresLogin : true, role : "Customer"}},
+    {path : '/mybookings/:name', component : RecentlyBookedPage, props : true, meta : {requiresLogin : true, role : "Customer"}},
 ]
 
 import store from './store.js'
@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
         if (!store.state.loggedIn){
             next({path : '/login'})
         } else if (to.meta.role && to.meta.role != store.state.role){
-            alert('role not authorized')
+            alert('Access denied for this role.')
             next({path : '/'})
         } else {
             next();

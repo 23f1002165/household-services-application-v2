@@ -9,7 +9,7 @@ export default {
                     <p class="text-muted m-0">Looks like you haven’t experienced quality services at home.</p>
                     <div style="color: #6f42c1; cursor: pointer;" @click="$router.push('/Customer')">Explore our services →</div>
                 </div>
-                <div v-for="request in all_requests" :key="request.id" v-if="request.status === 'requested' || request.status === 'assigned' || request.status === 'started'">   
+                <div v-for="request in all_requests" :key="request.id" v-if="request.status === 'requested' || request.status === 'assigned' || request.status === 'declined' || request.status === 'started'">   
                     <div class="d-flex align-items-center">
                         <img src="/static/images/Home.jpg" style="width: 70px; height: 70px;"/>
                         <div style="margin: 10px 10px;">
@@ -45,6 +45,19 @@ export default {
                             {{ request.show ? 'Close' : 'View Details' }}
                             </button>
                         </div>
+                        <div class="d-flex justify-content-between" style="width: 550px; margin: 10px 10px; gap: 10px;">
+                            <button v-if="!request.show" class="w-50" style="padding: 10px 20px; border: 1px solid #e0e0e0; background-color: white; color: black; border-radius: 5px; font-size: 15px; outline: none;" @click="slotSelection(request)" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                            {{ request.showSlots ? 'Close' : 'Reschedule this booking' }}
+                            </button>
+                            <button v-if="!request.showSlots && !request.show" class="btn btn-link w-50"style="background: #6f42c1; border: 1px solid #6f42c1; border-radius: 5px; color: white; text-decoration: none; font-size: 15px; outline: none;" @click="closeRequest(request)">
+                            Cancel this Booking
+                            </button>
+                        </div>
+                    </div>
+                    <div v-if="request.status === 'declined'">
+                        <p class="text-muted">Service will start on {{ request.date_of_request.split(" ")[0] }} at {{ request.date_of_request.split(" ")[1] }} {{ request.date_of_request.split(" ")[2] }}</p>
+                        <p class="fw-bold mb-0">Sorry, your request was declined by the technician. We are working on a replacement.</p>
+                        
                         <div class="d-flex justify-content-between" style="width: 550px; margin: 10px 10px; gap: 10px;">
                             <button v-if="!request.show" class="w-50" style="padding: 10px 20px; border: 1px solid #e0e0e0; background-color: white; color: black; border-radius: 5px; font-size: 15px; outline: none;" @click="slotSelection(request)" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
                             {{ request.showSlots ? 'Close' : 'Reschedule this booking' }}
@@ -215,6 +228,7 @@ export default {
             if(res.ok){
                 this.$router.push('/Customer/bookings')
                 alert('Booking cancelled. We hope to see you again in the future');
+                location.reload();
             }
         },
         changeDate(newDate) {
@@ -241,6 +255,7 @@ export default {
             if(res.ok){
                 this.$router.push('/Customer/bookings')
                 alert(`Proceeding with service on ${this.selectedDate} at ${this.selectedSlot}`);
+                location.reload();
             }
         },
         

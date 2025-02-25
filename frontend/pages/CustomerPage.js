@@ -19,7 +19,7 @@ export default {
             <h5 style="margin-top: 100px;">Recently Booked</h5>
             <div style="margin-top: 10px; padding: 20px; border-radius: 10px;">
                 <div style="display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); justify-content: center; gap: 40px; margin-top: 20px;">
-                    <div v-for="service in all_services" :key="service.id" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                    <div v-for="service in uniqueServices" :key="service.uniqueKey" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
                         <div @click="$router.push('/mybookings/'+service.name)" style="cursor: pointer; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background-color: rgb(228, 231, 231);">
                             <img src="/static/images/Cart.jpg" style="width: 50px; height: 50px;">
                         </div>
@@ -43,11 +43,39 @@ export default {
     `,
     data(){
         return{
-            all_services : []
+            all_services : [],
+            all_requests : []
         }
     },
     methods : {
-
+        async fetchrequests(){
+            const res = await fetch(`${location.origin}/api/request/service/${this.$store.state.user_id}`, {
+                headers : {
+                    'Authentication-Token' : this.$store.state.auth_token
+                }
+            })
+            if (res.ok){
+                this.all_requests = await res.json()
+            }
+        }
+    },
+    computed: {
+        uniqueServices() {
+            const seen = new Set();
+            return this.all_requests
+                .filter(request => ['closed', 'completed', 'cancelled'].includes(request.status))
+                .filter(request => {
+                    if (!seen.has(request.service.name)) {
+                        seen.add(request.service.name);
+                        return true;
+                    }
+                    return false;
+                })
+                .map(request => ({
+                    ...request.service,
+                    uniqueKey: `${request.service.name}-${request.id}`
+                }));
+        }
     },
     async mounted(){
         const res = await fetch(location.origin + '/api/services', {
@@ -57,5 +85,6 @@ export default {
         })
 
         this.all_services = await res.json()
+        this.fetchrequests();
     }
 }

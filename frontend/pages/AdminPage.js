@@ -15,7 +15,7 @@ export default {
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('serviceSection')">Service</a></li>
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('requestSection')">Service Request</a></li>
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">Professional</a></li>
-                <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">Customer</a></li>
+                <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('customerSection')">Customer</a></li>
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">Get Service Data</a></li>
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">About</a></li>
                 </ul>
@@ -25,7 +25,7 @@ export default {
         <div ref="serviceSection" style="width: 1100px; margin-left: 60px; padding: 20px;">
             <div class="d-flex justify-content-between my-5">
                 <h1 class="fw-bold">Service</h1>
-                <button @click="$router.push('/Customer')" class="fw-bold mb-0" style="padding: 1px 2px; border: 1px solid white; background-color: white; color: #008080; border-radius: 5px; outline: none;" >Create new services ></button>
+                <button @click="$router.push('/Admin/add_service')" class="fw-bold mb-0" style="padding: 1px 2px; border: 1px solid white; background-color: white; color: #008080; border-radius: 5px; outline: none;" >Create new services ></button>
             </div>
             <div class="row mt-3">
                 <div v-for="(service, index) in all_services" :key="index" class="col-md-3 mb-4">
@@ -73,7 +73,7 @@ export default {
         </div>
         <div ref="professionalSection" style="width: 1100px; margin-left: 60px; padding: 20px;">
             <h1 class="fw-bold">Professional</h1>
-            <div style="overflow-x: auto; overflow-y: hidden; white-space: nowrap; height: 400px; scrollbar-height: 1px; scrollbar-width: 100px; scrollbar-color: #888 #f1f1f1;">
+            <div style="overflow-x: auto; overflow-y: hidden; white-space: nowrap; height: 400px; scrollbar-height: 1px; scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
                 <div class="d-flex justify-content-between" style="margin-top: 30px; gap: 10px;">
                     <div v-for="professional in all_professionals" :key="professional.professional_id">
                         <div @click="$router.push('/Customer')" class="card border-0 shadow-sm" style="width: 250px; height: 250px; cursor: pointer;">
@@ -128,12 +128,35 @@ export default {
                 </div>
             </div>
         </div>
-
+        <div ref="customerSection" class="container py-5" style="width: 1300px; padding: 40px; background-color: #fdeee7;">
+            <h1 class="fw-bold text-dark mb-4">Customer</h1>
+            
+            <div class="row">
+                <div v-for="customer in all_customers" class="col-md-6 d-flex align-items-start mb-4">
+                    <div 
+                        class="d-flex align-items-center justify-content-center text-white"
+                        :style="{ backgroundColor: customer.active ? 'green' : 'red', width: '35px', height: '35px', borderRadius: '25px', fontSize: '20px' }">
+                        <p style="margin: 0;">@</p>
+                    </div>
+                    <div style="margin-left: 10px;">
+                        <h5 class="fw-bold">
+                            {{ customer.username }}
+                            <span v-if="customer.active">✔️</span>
+                            <span v-else>❌</span>
+                        </h5>
+                        <p class="text-dark">{{ customer.address }} - {{ customer.pincode }}</p>
+                        <p class="text-dark">Call {{ customer.phone_number }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width: 1200px; height: 5px; background-color: rgb(143, 145, 145); margin: 50px auto;"></div>
     </div>
     `,
     data() {
         return {
             all_services : [],
+            all_customers : [],
             all_requests : [],
             all_professionals : [],
         }
@@ -161,6 +184,14 @@ export default {
             })
             this.all_professionals = await res.json()
         },
+        async fetchcustomers(){
+            const res = await fetch(location.origin + '/api/customers', {
+                headers : {
+                    'Authentication-Token' : this.$store.state.auth_token
+                }
+            })
+            this.all_customers = await res.json()
+        },
         scrollToSection(section) {
             const element = this.$refs[section];
             if (element) {
@@ -180,6 +211,7 @@ export default {
             }
         })
         this.all_services = await res.json();
+        this.fetchcustomers();
         this.fetchprofessionals();
         this.fetchrequests();
     },

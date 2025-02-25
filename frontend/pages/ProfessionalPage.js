@@ -9,6 +9,11 @@ export default {
             </div>
             
             <div style="width: 600px; margin-right: 100px; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0;">
+                <div class="text-center" v-if="filteredRequests.length === 0">
+                    <h3 class="fw-bold">No active service requests.</h3>
+                    <p class="text-muted m-0">It seems like you have no service requests. Enjoy your day!</p>
+                    <img src="/static/images/NotFound.jpg" style="width: 300px; height: 300px; object-fit: cover; border-radius: 5px;">
+                </div>
                 <div v-for="request in filteredRequests" :key="request.id">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
@@ -68,7 +73,7 @@ export default {
                         </div>
                     </div>
                       
-                    <div style="width: 450px; height: 1px; background-color: black; margin: 20px auto;"></div>
+                    <div style="width: 550px; height: 1px; background-color: black; margin: 20px auto;"></div>
                 </div>
             </div>
         </div>
@@ -89,6 +94,21 @@ export default {
         return {
             servrequests : [],
             otp: ['', '', '', ''],
+        }
+    },
+    computed: {
+        isOtpFilled() {
+            return this.otp.every(digit => digit !== '');
+        },
+        filteredRequests() {
+            return this.servrequests.filter(request => {
+                return (
+                    (request.professional_id === 0 && request.status === 'requested') || 
+                    (request.professional_id === this.$store.state.user_id && request.status === 'assigned') ||
+                    (request.professional_id === this.$store.state.user_id && request.status === 'started') ||
+                    (request.professional_id !== this.$store.state.user_id && request.status === 'declined')
+                );
+            })
         }
     },
     methods: {
@@ -162,21 +182,6 @@ export default {
             }else {
                 alert("The verification code is incorrect. Please try again.")
             }
-        }
-    },
-    computed: {
-        isOtpFilled() {
-            return this.otp.every(digit => digit !== '');
-        },
-        filteredRequests() {
-            return this.servrequests.filter(request => {
-                return (
-                    (request.professional_id === null && request.status === 'requested') || 
-                    (request.professional_id === this.$store.state.user_id && request.status === 'assigned') ||
-                    (request.professional_id === this.$store.state.user_id && request.status === 'started') ||
-                    (request.professional_id !== this.$store.state.user_id && request.status === 'declined')
-                );
-            })
         }
     },
     async mounted(){

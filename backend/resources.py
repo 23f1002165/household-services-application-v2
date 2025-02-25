@@ -41,12 +41,12 @@ class Servicename(Resource):
     #@cache.memoize(timeout = 5)
     @marshal_with(service_fields)
     def get(self, name):
-        servname = Service.query.filter(Service.name.ilike(name)).first()
+        all_services = Service.query.filter(Service.name.ilike(name)).all()
 
-        if not servname:
+        if not all_services:
             return {"message" : "Service not found"}, 404
         
-        return servname
+        return all_services
     
 customer_fields = {
     "email": fields.String,
@@ -54,6 +54,7 @@ customer_fields = {
     "address": fields.String,
     "pincode": fields.String,
     "phone_number": fields.String,
+    "active": fields.Boolean,
 }
     
 servicerequest_fields = {
@@ -62,11 +63,22 @@ servicerequest_fields = {
     "customer_id": fields.Integer,
     "professional_id": fields.Integer,
     "date_of_request": fields.String,
+    "date_of_completion": fields.String,
     "status": fields.String,
+    "rating": fields.Integer,
+    "comments": fields.String,
+    "review_created_at": fields.String,
     "service": fields.Nested(service_fields),
     "customer": fields.Nested(customer_fields),
     "professional": fields.Nested(customer_fields),
 }
+
+class Customers(Resource):
+    #@cache.cached(timeout = 5, key_prefix = "services")
+    @marshal_with(customer_fields)
+    def get(self):
+        all_customers = User.query.all()
+        return all_customers
     
 class ServiceRequests(Resource):
     @auth_required("token")
@@ -86,6 +98,19 @@ class ServiceRequests(Resource):
         db.session.commit()
         return {"message": "Service Request Added"}
     
+class ServiceRequestname(Resource):
+    @auth_required('token')
+    #@cache.memoize(timeout = 5)
+    @marshal_with(servicerequest_fields)
+    def get(self, name):
+        servname = Service.query.filter(Service.name.ilike(name)).all()
+        servreqname = []
+        for service in servname:
+            requests = ServiceRequest.query.filter(ServiceRequest.service_id == service.id, ServiceRequest.status == 'closed').all()
+            servreqname.extend(requests)
+        
+        return servreqname
+    
 class EditServiceRequest(Resource):
     @auth_required("token")
     @marshal_with(servicerequest_fields)
@@ -100,6 +125,18 @@ class EditServiceRequest(Resource):
         service_request.professional_id = data.get('professional_id')
         service_request.date_of_request = data.get('date_of_request')
         service_request.date_of_completion = data.get('date_of_completion')
+        service_request.status = data.get('status')
+        db.session.commit()
+        return {"message": "Service Request Closed"}
+    
+class CloseServiceRequest(Resource):    
+    @auth_required("token")
+    def post(self, id):
+        data = request.get_json()
+        service_request = ServiceRequest.query.get(id)
+        service_request.rating = data.get('rating')
+        service_request.comments = data.get('comments')
+        service_request.review_created_at = data.get('review_created_at')
         service_request.status = data.get('status')
         db.session.commit()
         return {"message": "Service Request Closed"}
@@ -141,20 +178,9 @@ class Professional(Resource):
         db.session.commit()
         return {"message": "Professional Request Sent for Approval"}
     
-servicerequestprof_fields = {
-    "id": fields.Integer,
-    "service_id": fields.Integer,
-    "professional_id": fields.Integer,
-    "customer_id": fields.Integer,
-    "date_of_request": fields.String,
-    "status": fields.String,
-    "service": fields.Nested(service_fields),
-    "customer": fields.Nested(customer_fields),
-}
-    
 class ServiceRequestProf(Resource):
     #@auth_required("token")
-    @marshal_with(servicerequestprof_fields)
+    @marshal_with(servicerequest_fields)
     def get(self, id):
         profile = ProfessionalProfile.query.filter_by(professional_id=id).first()
         servrequests = ServiceRequest.query.filter_by(service_id=profile.service_type_id).all()
@@ -162,7 +188,10 @@ class ServiceRequestProf(Resource):
 
 api.add_resource(Services, "/services")
 api.add_resource(Servicename, "/service/<string:name>")
+api.add_resource(Customers, "/customers")
 api.add_resource(ServiceRequests, "/request", "/request/service")
+api.add_resource(ServiceRequestname, "/service_request/<string:name>")
 api.add_resource(EditServiceRequest, "/request/service/<int:customer_id>", "/request/edit/<int:id>")
+api.add_resource(CloseServiceRequest, "/request/close/<int:id>")
 api.add_resource(Professional, "/professional", "/professional/register")
 api.add_resource(ServiceRequestProf, "/servicerequest/<int:id>")
