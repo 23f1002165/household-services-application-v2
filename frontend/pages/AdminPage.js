@@ -29,7 +29,7 @@ export default {
             </div>
             <div class="row mt-3">
                 <div v-for="(service, index) in all_services" :key="index" class="col-md-3 mb-4">
-                    <div class="card text-white" style="width: 250px; height: 250px; border-radius: 10px; padding: 20px; background-color: #008080;">
+                    <div @click="$router.push('/edit_service/'+service.name)" class="card text-white" style="cursor: pointer; width: 250px; height: 250px; border-radius: 10px; padding: 20px; background-color: #008080;">
                         <div class="card-body" style="margin-top: 80px;">
                             <h4 class="fw-bold" style="font-size: 1.2rem;">{{ service.name }}</h4>
                         </div>

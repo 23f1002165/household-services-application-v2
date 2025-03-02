@@ -42,11 +42,27 @@ class Servicename(Resource):
     @marshal_with(service_fields)
     def get(self, name):
         all_services = Service.query.filter(Service.name.ilike(name)).all()
-
         if not all_services:
             return {"message" : "Service not found"}, 404
         
         return all_services
+    
+    @auth_required("token")
+    def post(self, id):
+        data = request.get_json()
+        service = Service.query.get(id)
+        service.price = data.get('price')
+        service.time_required = data.get('time_required')
+        
+        db.session.commit()
+        return {"message": "Service edited successfully."}
+    
+    @auth_required("token")
+    def delete(self, id):
+        service = Service.query.get(id)
+        db.session.delete(service)
+        db.session.commit()
+        return {"message": "Service Deleted"}
     
 customer_fields = {
     "email": fields.String,
@@ -187,7 +203,7 @@ class ServiceRequestProf(Resource):
         return servrequests
 
 api.add_resource(Services, "/services")
-api.add_resource(Servicename, "/service/<string:name>")
+api.add_resource(Servicename, "/service/<string:name>", "/edit_service/<int:id>", "/delete_service/<int:id>")
 api.add_resource(Customers, "/customers")
 api.add_resource(ServiceRequests, "/request", "/request/service")
 api.add_resource(ServiceRequestname, "/service_request/<string:name>")

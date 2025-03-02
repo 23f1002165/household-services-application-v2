@@ -1,6 +1,6 @@
 from flask import current_app as app, jsonify, request, render_template, send_file
 from flask_security import auth_required, verify_password, hash_password
-from backend.models import db
+from backend.models import Service, db
 from datetime import datetime
 from backend.celery.tasks import create_csv
 from celery.result import AsyncResult
