@@ -13,10 +13,9 @@ export default {
             <div class="container-fluid">
                 <ul class="nav nav-underline">
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('serviceSection')">Service</a></li>
-                <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('requestSection')">Service Request</a></li>
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">Professional</a></li>
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('customerSection')">Customer</a></li>
-                <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">Get Service Data</a></li>
+                <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">↓ Get Service Request Data</a></li>
                 <li ><a class="nav-link" style="color: #6f42c1; cursor: pointer;" @click="scrollToSection('professionalSection')">About</a></li>
                 </ul>
             </div>
@@ -76,7 +75,7 @@ export default {
             <div style="overflow-x: auto; overflow-y: hidden; white-space: nowrap; height: 400px; scrollbar-height: 1px; scrollbar-width: thin; scrollbar-color: #888 #f1f1f1;">
                 <div class="d-flex justify-content-between" style="margin-top: 30px; gap: 10px;">
                     <div v-for="professional in all_professionals" :key="professional.professional_id">
-                        <div @click="$router.push('/Customer')" class="card border-0 shadow-sm" style="width: 250px; height: 250px; cursor: pointer;">
+                        <div @click="$router.push('/profile/'+professional.professional_id)" class="card border-0 shadow-sm" style="width: 250px; height: 250px; cursor: pointer;">
                             <img src="/static/images/Professional.png" style="height: 200px; object-fit: cover;"/>
                             <div class="card-body text-center">
                                 <h5 class="card-title">{{ professional.professional.username }}</h5>
@@ -132,6 +131,22 @@ export default {
             <h1 class="fw-bold text-dark mb-4">Customer</h1>
             
             <div class="row">
+                <div v-for="customer in all_customers" class="col-md-6 d-flex align-items-start mb-4">
+                    <div 
+                        class="d-flex align-items-center justify-content-center text-white"
+                        :style="{ backgroundColor: customer.active ? 'green' : 'red', width: '35px', height: '35px', borderRadius: '25px', fontSize: '20px' }">
+                        <p style="margin: 0;">@</p>
+                    </div>
+                    <div style="margin-left: 10px;">
+                        <h5 class="fw-bold">
+                            {{ customer.username }}
+                            <span v-if="customer.active">✔️</span>
+                            <span v-else>❌</span>
+                        </h5>
+                        <p class="text-dark">{{ customer.address }} - {{ customer.pincode }}</p>
+                        <p class="text-dark">Call {{ customer.phone_number }}</p>
+                    </div>
+                </div>
                 <div v-for="customer in all_customers" class="col-md-6 d-flex align-items-start mb-4">
                     <div 
                         class="d-flex align-items-center justify-content-center text-white"

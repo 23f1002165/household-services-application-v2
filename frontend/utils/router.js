@@ -13,6 +13,7 @@ import AdminPage from "../pages/AdminPage.js";
 import HomePage from "../pages/HomePage.js";
 import ServicePage from "../pages/ServicePage.js";
 import EditServicePage from "../pages/EditServicePage.js";
+import ProfessionalProfilePage from "../pages/ProfessionalProfilePage.js";
 
 const routes = [
     {path : '/', component : HomePage},
@@ -28,6 +29,7 @@ const routes = [
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/Admin/add_service', component : AddServicePage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/edit_service/:name', component : EditServicePage, props : true, meta : {requiresLogin : true, role : "Admin"}},
+    {path : '/profile/:professional_id', component : ProfessionalProfilePage, props : true, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/service/:name', component : ServicePage, props : true, meta : {requiresLogin : true, role : "Customer"}},
     {path : '/mybookings/:name', component : RecentlyBookedPage, props : true, meta : {requiresLogin : true, role : "Customer"}},
 ]

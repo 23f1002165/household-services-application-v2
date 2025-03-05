@@ -194,6 +194,17 @@ class Professional(Resource):
         db.session.commit()
         return {"message": "Professional Request Sent for Approval"}
     
+class Professionalname(Resource):
+    @auth_required('token')
+    #@cache.memoize(timeout = 5)
+    @marshal_with(professional_fields)
+    def get(self, professional_id):
+        professional = ProfessionalProfile.query.filter(ProfessionalProfile.professional_id==professional_id).first()
+        if not professional:
+            return {"message" : "Professional not found"}, 404
+        
+        return professional
+    
 class ServiceRequestProf(Resource):
     #@auth_required("token")
     @marshal_with(servicerequest_fields)
@@ -210,4 +221,5 @@ api.add_resource(ServiceRequestname, "/service_request/<string:name>")
 api.add_resource(EditServiceRequest, "/request/service/<int:customer_id>", "/request/edit/<int:id>")
 api.add_resource(CloseServiceRequest, "/request/close/<int:id>")
 api.add_resource(Professional, "/professional", "/professional/register")
+api.add_resource(Professionalname, "/professional/<int:professional_id>")
 api.add_resource(ServiceRequestProf, "/servicerequest/<int:id>")
