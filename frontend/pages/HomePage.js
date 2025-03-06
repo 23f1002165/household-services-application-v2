@@ -44,7 +44,7 @@ export default {
           <div>
             <h5>For customers</h5>
             <ul style="list-style: none; padding: 0; color: #666;">
-              <li @click="$router.push('/service/Plumbing')" style="cursor: pointer;">Book a service</li>  
+              <li @click="$router.push('/Customer')" style="cursor: pointer;">Book a service</li>  
             </ul>
           </div>
           <div>

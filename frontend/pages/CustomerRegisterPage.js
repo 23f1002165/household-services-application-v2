@@ -71,11 +71,8 @@ export default {
                 })
             const data = await res.json()
 			if (res.ok) {
-				this.feedback = data.message
-                this.showError = true
-                setTimeout(() => {
-                    this.showError = false;
-                }, 3000);
+                alert('User account created')
+                location.reload();
 			} else {
                 this.feedback = data.message
                 this.showError = true

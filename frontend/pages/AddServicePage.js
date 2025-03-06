@@ -15,7 +15,17 @@ export default {
 
                     <form @submit.prevent="addService">
                         <div class="mb-3">
-                            <input type="text" class="form-control" v-model="name" required placeholder="Service name">
+                            <select class="form-control" v-model="selectedService">
+                                <option value="" disabled>Select an existing service</option>
+                                <option v-for="service in uniqueServices" :key="service.id" :value="service.name">
+                                    {{ service.name }}
+                                </option>
+                                <option value="new">Create New Service</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" v-if="selectedService === 'new'">
+                            <input type="text" class="form-control" v-model="name" required placeholder="New Service Name">
                         </div>
 
                         <div class="mb-3">
@@ -40,14 +50,47 @@ export default {
     `,
     data(){
         return {
+            availableServices: [],
+            selectedService: "",
             name : null,
             price : null,
             time_required : null,
             description : null,
         } 
     },
+    computed: {
+        uniqueServices() {
+            const seen = new Set();
+            return this.availableServices.filter(service => {
+                if (!seen.has(service.name)) {
+                    seen.add(service.name);
+                    return true;
+                }
+                return false;
+            });
+        }
+    },
     methods : {
+        async fetchServices(){
+            const res = await fetch(location.origin+'/api/services', {
+                method: 'GET',
+                headers: {
+                    'Authentication-Token' : this.$store.state.auth_token
+                }
+            });
+
+            if (res.ok){
+                const data = await res.json();
+                this.availableServices = data;
+            }
+        },
         async addService(){
+            let serviceName = this.selectedService === 'new' ? this.name : this.selectedService;
+
+            if (!serviceName) {
+                alert("Please select or enter a service name.");
+                return;
+            }
             const res = await fetch(location.origin+'/api/services', 
                 {
                     method : 'POST', 
@@ -55,13 +98,15 @@ export default {
                         'Authentication-Token' : this.$store.state.auth_token,
                         'Content-Type' : 'application/json'
                     }, 
-                    body : JSON.stringify({'name': this.name, 'price': this.price, 'time_required': this.time_required, 'description': this.description})
+                    body : JSON.stringify({'name': serviceName, 'price': this.price, 'time_required': this.time_required, 'description': this.description})
                 })
             if (res.ok){
-                console.log('service added')
-                alert(`${this.name} service added successfully.`);
+                alert(`${serviceName} service added successfully.`);
                 this.$router.push('/Admin')
             }
         }
+    },
+    mounted(){
+        this.fetchServices();
     }
 }

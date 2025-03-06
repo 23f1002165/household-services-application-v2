@@ -7,9 +7,6 @@ export default {
         </div>
         <div class="d-flex justify-content-center align-items-center" style="padding: 60px;">
             <div>
-                <div v-if="showError" class="alert alert-danger text-center">
-                    {{ feedback }}
-                </div>
                 <div class="card p-4 shadow-lg" style="width: 500px; border-radius: 20px;">
                     
                     <h4 class="text mb-3">Share your email ID</h4>
@@ -30,11 +27,11 @@ export default {
                         </div>
 
                         <div class="mb-3">
-                            <select class="form-select w-100" v-model="id" required>
-                            <option value="" disabled selected>Select available services</option>
-                            <option v-for="service in all_services" :key="service.id" :value="service.id">
-                                {{ service.name }}
-                            </option>
+                            <select class="form-control" v-model="id" required>
+                                <option value="" disabled>Select an existing service</option>
+                                <option v-for="service in uniqueServices" :key="service.id" :value="service.id">
+                                    {{ service.name }}
+                                </option>
                             </select>
                         </div>
 
@@ -47,7 +44,7 @@ export default {
                         </div>
 
                         <div class="mb-3">
-                            <input type="file" class="form-control" v-model="documents" required>
+                            <input type="file" class="form-control" @change="handleFileUpload" required>
                         </div>
 
                         <div class="mb-3">
@@ -56,6 +53,9 @@ export default {
 
                         <div class="mb-3">
                             <input type="text" class="form-control" v-model="pincode" required placeholder="Pincode">
+                        </div>
+                        <div v-if="showError" class="alert alert-danger text-center">
+                            {{ feedback }}
                         </div>
 
                         <button class="btn btn-primary w-100" type='submit'>Join Us</button>
@@ -71,7 +71,7 @@ export default {
             username : null,
             email : null,
             password : null,
-            id : null,
+            id : "",
             experience : null,
             phone_number : null,
             documents : null,
@@ -82,32 +82,57 @@ export default {
             all_services: []
         } 
     },
+    computed: {
+        uniqueServices() {
+            const seen = new Set();
+            return this.all_services.filter(service => {
+                if (!seen.has(service.name)) {
+                    seen.add(service.name);
+                    return true;
+                }
+                return false;
+            });
+        }
+    },
     methods : {
-        async professionalRegister(){
-            const res = await fetch(location.origin+'/api/professional/register',
-                {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({'username': this.username, 'email': this.email,'password': this.password, 'service_type_id': this.id, 'experience': this.experience, 'phone_number': this.phone_number, 'documents':this.documents, 'address': this.address, 'pincode': this.pincode}),
-                })
-            const data = await res.json()
-			if (res.ok) {
-				this.feedback = data.message
-                this.showError = true
+        handleFileUpload(event) {
+            this.documents = event.target.files[0];
+        },
+        async professionalRegister() {
+            let formData = new FormData();
+            formData.append("username", this.username);
+            formData.append("email", this.email);
+            formData.append("password", this.password);
+            formData.append("service_type_id", parseInt(this.id));
+            formData.append("experience", this.experience);
+            formData.append("phone_number", this.phone_number);
+            formData.append("address", this.address);
+            formData.append("pincode", this.pincode);
+            formData.append("documents", this.documents);
+
+            const res = await fetch(location.origin + '/api/professional/register', {
+                method: 'POST',
+                headers: {
+                
+                },
+                body: formData
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                alert('Professional Request Sent for Approval')
+                location.reload();
+            } else {
+                this.feedback = data.message;
+                this.showError = true;
                 setTimeout(() => {
                     this.showError = false;
                 }, 3000);
-			} else {
-                this.feedback = data.message
-                this.showError = true
-                setTimeout(() => {
-                    this.showError = false;
-                }, 3000);
-			}
+            }
         }
     },
     async mounted() {
         const res = await fetch("/api/services");
-        this.all_services = await res.json()
+        this.all_services = await res.json();
     },
 }

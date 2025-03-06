@@ -7,7 +7,7 @@ export default {
                 <p class="text-muted">Tailored Services To Meet Your Needs</p>
                 
                 <div style="display: grid; grid-template-columns: repeat(3, minmax(200px, 1fr)); gap: 40px; margin-top: 20px; justify-content: center;">
-                    <div v-for="service in all_services" :key="service.id" :name="service.name">
+                    <div v-for="service in uniqueServ" :key="service.id" :name="service.name">
                         <div @click="$router.push('/service/'+service.name)" style="cursor: pointer; padding: 15px; display: flex; align-items: center; border-radius: 10px; background-color: #f8f9fa; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);">
                             <img src="/static/images/Home.jpg" style="width: 50px; height: 50px; margin-right: 15px;">
                             <span style="font-size: 16px; font-weight: 500;">{{ service.name }}</span>
@@ -18,7 +18,13 @@ export default {
             
             <h5 style="margin-top: 100px;">Recently Booked</h5>
             <div style="margin-top: 10px; padding: 20px; border-radius: 10px;">
+                <div class="text-center" v-if="uniqueServices.length === 0" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+                    <h3 class="fw-bold">No bookings yet.</h3>
+                    <p class="text-muted m-0">Looks like you haven’t experienced quality services at home.</p>
+                    <p>Explore our services.</p>
+                </div>
                 <div style="display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); justify-content: center; gap: 40px; margin-top: 20px;">
+                      
                     <div v-for="service in uniqueServices" :key="service.uniqueKey" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
                         <div @click="$router.push('/mybookings/'+service.name)" style="cursor: pointer; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background-color: rgb(228, 231, 231);">
                             <img src="/static/images/Cart.jpg" style="width: 50px; height: 50px;">
@@ -75,6 +81,16 @@ export default {
                     ...request.service,
                     uniqueKey: `${request.service.name}-${request.id}`
                 }));
+        },
+        uniqueServ() {
+            const seen = new Set();
+            return this.all_services.filter(service => {
+                if (!seen.has(service.name)) {
+                    seen.add(service.name);
+                    return true;
+                }
+                return false;
+            });
         }
     },
     async mounted(){

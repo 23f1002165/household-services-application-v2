@@ -14,6 +14,8 @@ import HomePage from "../pages/HomePage.js";
 import ServicePage from "../pages/ServicePage.js";
 import EditServicePage from "../pages/EditServicePage.js";
 import ProfessionalProfilePage from "../pages/ProfessionalProfilePage.js";
+import CustomerProfilePage from "../pages/CustomerProfilePage.js";
+
 
 const routes = [
     {path : '/', component : HomePage},
@@ -29,7 +31,8 @@ const routes = [
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/Admin/add_service', component : AddServicePage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/edit_service/:name', component : EditServicePage, props : true, meta : {requiresLogin : true, role : "Admin"}},
-    {path : '/profile/:professional_id', component : ProfessionalProfilePage, props : true, meta : {requiresLogin : true, role : "Admin"}},
+    {path : '/professional_profile/:professional_id', component : ProfessionalProfilePage, props : true, meta : {requiresLogin : true, role : ["Admin", "Professional"]}},
+    {path : '/profile/:id', component : CustomerProfilePage, props : true, meta : {requiresLogin : true, role : ["Admin", "Customer"]}},
     {path : '/service/:name', component : ServicePage, props : true, meta : {requiresLogin : true, role : "Customer"}},
     {path : '/mybookings/:name', component : RecentlyBookedPage, props : true, meta : {requiresLogin : true, role : "Customer"}},
 ]
@@ -44,10 +47,11 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
+    const userRole = store.state.role;
     if (to.matched.some((record) => record.meta.requiresLogin)){
         if (!store.state.loggedIn){
             next({path : '/login'})
-        } else if (to.meta.role && to.meta.role != store.state.role){
+        } else if (to.meta.role && to.meta.role != store.state.role && !to.meta.role.includes(userRole)){
             alert('Access denied for this role.')
             next({path : '/'})
         } else {

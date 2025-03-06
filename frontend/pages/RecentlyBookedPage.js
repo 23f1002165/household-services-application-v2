@@ -5,11 +5,7 @@ export default {
             <div style="width: 550px; margin-left: 350px; padding: 20px;">
                 <h3 class="fw-bold">Recently Booked</h3>
                 <div style="width: 550px; height: 1px; background-color: black; margin: 20px auto;"></div>
-                <div class="text-center" v-if="filteredRequests.length === 0">
-                    <h3 class="fw-bold">No bookings yet.</h3>
-                    <p class="text-muted m-0">Looks like you haven’t experienced quality services at home.</p>
-                    <div style="color: #6f42c1; cursor: pointer;" @click="$router.push('/Customer')">Explore our services →</div>
-                </div>  
+                
                 <div v-for="request in filteredRequests" :key="request.id">
                     <div class="d-flex align-items-center">
                         <img src="/static/images/Home.jpg" style="width: 70px; height: 70px;"/>

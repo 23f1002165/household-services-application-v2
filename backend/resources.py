@@ -1,8 +1,9 @@
 from flask import request, current_app as app
 from flask_restful import Api, Resource, fields, marshal_with
 from flask_security import SQLAlchemyUserDatastore, hash_password, auth_required, roles_required, current_user
-from backend.models import User, Service, ProfessionalProfile, ServiceRequest, db
+from backend.models import User, UserRoles, Service, ProfessionalProfile, ServiceRequest, db
 from datetime import datetime
+import os
 
 cache = app.cache
 userdatastore : SQLAlchemyUserDatastore = app.security.datastore
@@ -65,6 +66,7 @@ class Servicename(Resource):
         return {"message": "Service Deleted"}
     
 customer_fields = {
+    "id": fields.Integer,
     "email": fields.String,
     "username": fields.String,
     "address": fields.String,
@@ -93,8 +95,34 @@ class Customers(Resource):
     #@cache.cached(timeout = 5, key_prefix = "services")
     @marshal_with(customer_fields)
     def get(self):
-        all_customers = User.query.all()
+        users = UserRoles.query.filter(UserRoles.role_id == 2).all()
+        all_customers = []
+        for user in users:
+            cust = User.query.filter(User.id == user.id).all()
+            all_customers.extend(cust)
         return all_customers
+    
+class Customername(Resource):
+    @auth_required('token')
+    #@cache.memoize(timeout = 5)
+    @marshal_with(customer_fields)
+    def get(self, id):
+        customer = User.query.filter(User.id==id).first()
+        if not customer:
+            return {"message" : "Customer not found"}, 404
+        
+        return customer
+    
+    @auth_required("token")
+    def post(self, id):
+        data = request.get_json()
+        customer = User.query.get(id)
+        customer.phone_number = data.get('phone_number')
+        customer.address = data.get('address')
+        customer.pincode = data.get('pincode')
+        
+        db.session.commit()
+        return {"message": "Profile edited successfully."}
     
 class ServiceRequests(Resource):
     @auth_required("token")
@@ -166,6 +194,12 @@ professional_fields = {
     "professional": fields.Nested(customer_fields),
 }
 
+UPLOAD_FOLDER = 'uploads/'
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 class Professional(Resource):
     @marshal_with(professional_fields)
     def get(self):
@@ -173,26 +207,45 @@ class Professional(Resource):
         return all_professionals
     
     def post(self):
-        data = request.get_json()
+        data = request.form
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
         phone_number = data.get('phone_number')
-        address = data.get('phone_number')
+        address = data.get('address')
         pincode = data.get('pincode')
         service_type_id = data.get('service_type_id')
         experience = data.get('experience')
-        documents = data.get('documents')
+
+        file = request.files.get('documents')
+        if file and allowed_file(file.filename):
+            filename = (file.filename)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+        else:
+            return {"message": "Invalid file format. Only PDF, PNG, JPG, JPEG allowed."}, 400
+
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return {"message": "User already exists"}, 400
-        userdatastore.create_user(email=email, password=hash_password(password), username=username, address=address, pincode=pincode, phone_number=phone_number, roles=['Professional'])
-        id = User.query.filter_by(email=email).first().id
-        professional_id = id
-        professional = ProfessionalProfile(professional_id=professional_id, experience=experience, service_type_id=service_type_id, documents=documents)
+
+        userdatastore.create_user(
+            email=email, password=hash_password(password), username=username,
+            address=address, pincode=pincode, phone_number=phone_number, roles=['Professional']
+        )
+
+        professional_id = User.query.filter_by(email=email).first().id
+        professional = ProfessionalProfile(
+            professional_id=professional_id,
+            experience=experience,
+            service_type_id=service_type_id,
+            documents=filename
+        )
+
         db.session.add(professional)
         db.session.commit()
-        return {"message": "Professional Request Sent for Approval"}
+
+        return {"message": "Professional Request Sent for Approval"}, 200
     
 class Professionalname(Resource):
     @auth_required('token')
@@ -205,21 +258,79 @@ class Professionalname(Resource):
         
         return professional
     
+    @auth_required("token")
+    def post(self, id):
+        data = request.form
+
+        professional = ProfessionalProfile.query.filter_by(professional_id=id).first()
+        if not professional:
+            return {"message": "Professional profile not found."}, 404
+
+        user = User.query.get(id)
+        if not user:
+            return {"message": "User not found."}, 404
+
+        if data.get('username'):
+            user.username = data['username']
+        if data.get('email'):
+            user.email = data['email']
+        if data.get('phone_number'):
+            user.phone_number = data['phone_number']
+        if data.get('address'):
+            user.address = data['address']
+        if data.get('pincode'):
+            user.pincode = data['pincode']
+
+        if data.get('service_type_id'):
+            professional.service_type_id = data['service_type_id']
+        if data.get('experience'):
+            professional.experience = data['experience']
+
+        file = request.files.get('documents')
+        if file and allowed_file(file.filename):
+            if professional.documents:
+                old_file_path = os.path.join(UPLOAD_FOLDER, professional.documents)
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+
+            filename = file.filename
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            professional.documents = filename
+        
+        db.session.commit()
+
+        return {"message": "Profile updated successfully."}, 200
+    
 class ServiceRequestProf(Resource):
     #@auth_required("token")
     @marshal_with(servicerequest_fields)
     def get(self, id):
         profile = ProfessionalProfile.query.filter_by(professional_id=id).first()
-        servrequests = ServiceRequest.query.filter_by(service_id=profile.service_type_id).all()
+        servname = Service.query.filter_by(id=profile.service_type_id).first()
+        services = Service.query.filter_by(name=servname.name).all()
+        servrequests = []
+        for service in services:
+            requests = ServiceRequest.query.filter(ServiceRequest.service_id == service.id).all()
+            servrequests.extend(requests)
+        return servrequests
+
+class ServiceRequestCust(Resource):
+    #@auth_required("token")
+    @marshal_with(servicerequest_fields)
+    def get(self, id):
+        servrequests = ServiceRequest.query.filter_by(customer_id=id).all()
         return servrequests
 
 api.add_resource(Services, "/services")
 api.add_resource(Servicename, "/service/<string:name>", "/edit_service/<int:id>", "/delete_service/<int:id>")
 api.add_resource(Customers, "/customers")
+api.add_resource(Customername, "/customer/<int:id>", "/profile/edit/<int:id>")
 api.add_resource(ServiceRequests, "/request", "/request/service")
 api.add_resource(ServiceRequestname, "/service_request/<string:name>")
 api.add_resource(EditServiceRequest, "/request/service/<int:customer_id>", "/request/edit/<int:id>")
 api.add_resource(CloseServiceRequest, "/request/close/<int:id>")
 api.add_resource(Professional, "/professional", "/professional/register")
-api.add_resource(Professionalname, "/professional/<int:professional_id>")
+api.add_resource(Professionalname, "/professional/<int:professional_id>", "/edit_profile/<int:id>")
 api.add_resource(ServiceRequestProf, "/servicerequest/<int:id>")
+api.add_resource(ServiceRequestCust, "/customer_request/<int:id>")

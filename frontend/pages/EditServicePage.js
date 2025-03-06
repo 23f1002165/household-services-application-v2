@@ -39,11 +39,11 @@ export default {
                             <form @submit.prevent="editService(servname)">
                                 <p class="text-muted">Change Price</p>
                                 <div class="mb-3">
-                                    <input type="text" rows="3" class="form-control" v-model="servname.price" placeholder="Share your experience..."/>
+                                    <input type="text" rows="3" class="form-control" v-model="servname.price"/>
                                 </div>
                                 <p class="text-muted">Change Estimated Time</p>
                                 <div class="mb-3">
-                                    <input type="text" rows="3" class="form-control" v-model="servname.time_required" placeholder="Share your experience..."/>
+                                    <input type="text" rows="3" class="form-control" v-model="servname.time_required"/>
                                 </div>
                                 <button class="btn btn-link w-100" type="submit" style="background: #6f42c1; border: 1px solid #6f42c1; border-radius: 5px; color: white; text-decoration: none; font-size: 15px; outline: none;" @click="editService(servname)">
                                 Edit Details

@@ -1,6 +1,6 @@
-from flask import current_app as app, jsonify, request, render_template, send_file
-from flask_security import auth_required, verify_password, hash_password
-from backend.models import Service, db
+from flask import current_app as app, jsonify, request, render_template, send_file, send_from_directory
+from flask_security import auth_required, verify_password, hash_password, roles_required
+from backend.models import User, Service, ProfessionalProfile, db
 from datetime import datetime
 from backend.celery.tasks import create_csv
 from celery.result import AsyncResult
@@ -27,6 +27,11 @@ def getCSV(id):
         return send_file(f'./backend/celery/user-downloads/{result.result}'), 200
     else:
         return {'message' : 'task not ready'}, 405
+
+@app.route('/uploads/<filename>')
+@auth_required('token')
+def uploaded_file(filename):
+    return send_from_directory('uploads', filename)
 
 @app.post('/login')
 def login():
@@ -68,3 +73,43 @@ def register():
     db.session.commit()
     return jsonify({"message" : "User created"}), 200
     
+@app.get("/status/customer/<int:id>")
+@auth_required("token")
+@roles_required("Admin")
+def status_customer(id):
+    customer = User.query.get(id)
+    customer.active = not customer.active
+    db.session.commit()
+    status = "Activated" if customer.active else "Deactivated"
+    return jsonify({"message": f"Customer {status}"})
+
+@app.get("/verify/professional/<int:id>")
+@auth_required("token")
+@roles_required("Admin")
+def verify_professional(id):
+    professional = ProfessionalProfile.query.filter_by(professional_id=id).first()
+    professional.is_verified = True
+    db.session.commit()
+    return jsonify({"message": "Professional successfully verified"})
+
+@app.get("/deny/professional/<int:id>")
+@auth_required("token")
+@roles_required("Admin")
+def deny_professional(id):
+    professional = User.query.get(id)
+    professional.active = False
+    db.session.commit()
+    professional = ProfessionalProfile.query.filter_by(professional_id=id).first()
+    professional.is_verified = False
+    db.session.commit()
+    return jsonify({"message": "Professional approval refused"})
+
+@app.get("/status/professional/<int:id>")
+@auth_required("token")
+@roles_required("Admin")
+def status_professional(id):
+    professional = User.query.get(id)
+    professional.active = not professional.active
+    db.session.commit()
+    status = "Activated" if professional.active else "Deactivated"
+    return jsonify({"message": f"Professional {status}"})

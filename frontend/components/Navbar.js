@@ -16,13 +16,14 @@ export default {
                     <router-link v-if="!$store.state.loggedIn" to="/login" style="text-decoration: none; color: black; padding: 8px 16px;">Login</router-link>
                     <!-- Admin Links -->
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Admin'" to="/Admin" style="text-decoration: none; color: black; padding: 8px 16px;">Dashboard</router-link>
-                    <router-link v-if="$store.state.loggedIn && $store.state.role == 'Admin'" to="/Admin/add_service" style="text-decoration: none; color: black; padding: 8px 16px;">Services</router-link>
                     <!-- Customer Dashboard -->
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Customer'" to="/Customer" style="text-decoration: none; color: black; padding: 8px 16px;">Dashboard</router-link>
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Customer'" to="/Customer/bookings" style="text-decoration: none; color: black; padding: 8px 16px;">My bookings</router-link>
+                    <button class="btn-link" style="background: none; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; color: black; font-size: 16px; outline: none;" v-if="$store.state.loggedIn && $store.state.role == 'Customer'" @click="custProfile">Profile</button>
                     <!-- Professional Dashboard -->
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Professional'" to="/Professional" style="text-decoration: none; color: black; padding: 8px 16px;">Dashboard</router-link>
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Professional'" to="/Professional/history" style="text-decoration: none; color: black; padding: 8px 16px;">Service History</router-link>
+                    <button class="btn-link" style="background: none; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; color: black; font-size: 16px; outline: none;" v-if="$store.state.loggedIn && $store.state.role == 'Professional'" @click="profProfile">Profile</button>
                     <!-- Logout Button -->
                     <button class="btn-link" style="background: none; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; color: black; font-size: 16px; outline: none;" v-if="$store.state.loggedIn" @click="logout">Logout</button>
                 </div>
@@ -54,9 +55,15 @@ export default {
                 this.name = '';
             }
         },
+        profProfile(){
+            this.$router.push(`/professional_profile/${this.$store.state.user_id}`)
+        },
+        custProfile(){
+            this.$router.push(`/profile/${this.$store.state.user_id}`)
+        },
         logout() {
             this.$store.commit('logout')
             this.$router.push('/')
         }
-    }
+    },
 }
