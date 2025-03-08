@@ -4,7 +4,7 @@ export default {
             <div style="width: 550px; margin-left: 350px; padding: 20px;">
                 <h3 class="fw-bold">My Bookings</h3>
                 <div style="width: 550px; height: 1px; background-color: black; margin: 20px auto;"></div>
-                <div class="text-center" v-if="all_requests.length === 0">
+                <div class="text-center" v-if="filteredRequests.length === 0">
                     <h3 class="fw-bold">No bookings yet.</h3>
                     <p class="text-muted m-0">Looks like you haven’t experienced quality services at home.</p>
                     <div style="color: #6f42c1; cursor: pointer;" @click="$router.push('/Customer')">Explore our services →</div>
@@ -73,13 +73,13 @@ export default {
                                 <img src="/static/images/Profile.jpg" class="me-3" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
                                 <div>
                                     <h6 class="mb-0">{{ request.professional.username }}</h6>
-                                    <p class="text-muted mb-0">Service Rating: <span class="text-success">⭐ 4.85</span></p>
+                                    <p class="text-muted mb-0">Overall Service Rating: <span class="text-success">⭐ {{ averageRating(request) }}</span></p>
                                 </div>
                             </div>
                             <p class="mt-2 text-muted"> 📞 {{ request.professional.phone_number }}</p>
                             <div class="d-flex mt-3">
                                 <button class="btn btn-link" style="background: #6f42c1; border: 1px solid #6f42c1; border-radius: 5px; color: white; text-decoration: none; font-size: 15px; outline: none;" @click="requestOTP(request)">Get Start OTP</button>
-                                <p style="margin: 2px 20px;" v-if="request.otp">Verification code : {{ request.id }}{{ request.service_id }}{{ request.customer_id }}{{ request.professional_id }}</p>
+                                <p style="margin: 2px 20px;" v-if="request.otp">Verification code : {{ request.id.toString().charAt(0) }}{{ request.service_id }}{{ request.customer_id }}{{ request.professional_id }}</p>
                             </div>
                         </div>
                     </div>
@@ -144,6 +144,15 @@ export default {
             selectedDate: null,
         }
     },
+    computed: {
+        filteredRequests() {
+            return this.all_requests.filter(request => {
+                return (
+                    (request.status === 'requested' || request.status === 'assigned' || request.status === 'declined' || request.status === 'started')
+                );
+            })
+        }
+    },
     methods: {
         slotSelection(request){
             request.showSlots = !request.showSlots;
@@ -205,6 +214,14 @@ export default {
                 if (minute === 0) hour++;
             }
             return slots;
+        },
+        averageRating(request) {
+            const filtRequests = this.all_requests.filter(req => 
+                String(req.professional_id) === String(request.professional_id) && req.status === 'closed'
+            );
+            if (!filtRequests.length) return 'No reviews yet.';
+            let total = filtRequests.reduce((sum, req) => sum + (req.rating || 0), 0);
+            return (total / filtRequests.length).toFixed(1);
         },
         async closeRequest(request){
             const today = new Date().toLocaleDateString("en-GB", { 

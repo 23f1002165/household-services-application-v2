@@ -7,11 +7,11 @@ export default {
                     <h3 class="fw-bold">{{ professional.professional.username }}</h3>
                     <span style="margin: 10px 10px;" class="text-dark" v-if="professional.professional.active">
                         <span v-if="professional.is_verified">✔️ Verified</span>
-                        <span v-else> ⟳ Approval Process Ongoing</span>
+                        <span v-else>🚫 Verfication Declined</span>
                     </span>
                     <span style="margin: 10px 10px;" class="text-dark" v-if="!professional.professional.active">
                         <span v-if="professional.is_verified">❌ Blocked</span>
-                        <span v-else>🚫 Verfication Declined</span>
+                        <span v-else> ⟳ Approval Process Ongoing</span>
                     </span>
                 </div>
                 
@@ -21,11 +21,22 @@ export default {
                     <img src="/static/images/Professional.png" style="width: 90px; height: 90px;"/>
                     <div style="margin: 10px 10px;">
                         <h5 class="fw-bold">{{ professional.professional.email }}</h5>
-                        <p class="fw-bold">{{ servrequests[0].service.name }} • {{ professional.experience }} years of experience</p>
+                        <p class="fw-bold">{{ getServiceName(professional.service_type_id) }} • {{ professional.experience }} years of experience</p>
                         
                         <p class="text-muted mb-0">{{ professional.professional.address }} - {{ professional.professional.pincode }}</p>
                         <p class="text-muted mb-0"> 📞 {{ professional.professional.phone_number }}</p>
                     </div>
+                </div>
+                <div v-if="professional.is_verified">
+                    <p class="fw-bold">Hired on {{ professional.professional.confirmed_at }}</p>
+                </div>
+                <h6 class="mb-0">Overall service rating.</h6>
+                <div class="mb-3">
+                    <span v-for="star in 5" :key="star" style="font-size: 24px; margin-right: 5px;">
+                        <i v-if="star <= Math.floor(averageRating)" class="bi bi-star-fill text-warning"></i>
+                        <i v-else-if="star - 0.5 <= averageRating" class="bi bi-star-half text-warning"></i>
+                        <i v-else class="bi bi-star text-secondary"></i>
+                    </span>
                 </div>
                 <div v-if="professional.professional.username!=='Professional IITM'">
                     <button @click="downloadDocument" class="btn btn-link" style="color: #6f42c1; font-size: 15px; outline: none; text-decoration: none;">
@@ -51,6 +62,11 @@ export default {
                     <button @click="toggleEditProfile" class="btn btn-link w-100" style="margin: 5px 0px; background: none; border: 1px solid #6f42c1; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; color: #6f42c1; font-size: 16px; outline: none;">
                         {{ isEditing ? 'Close' : 'Edit Profile' }}
                     </button>
+                    <div v-if="!professional.is_verified">        
+                        <button @click="reRequest" class="btn btn-link w-100" style="margin: 5px 0px; background: #6f42c1; border: 1px solid #6f42c1; color: white; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; font-size: 16px; outline: none;">
+                        Request re-verification
+                        </button>
+                    </div>
                 </div>
 
                 <div v-if="isEditing">
@@ -125,7 +141,7 @@ export default {
                         </div>
                         <span>⭐ {{ review.rating }}</span>
                     </div>
-                    <p class="mt-2">{{ review.comments }}</p>      
+                    <p class="mt-2">{{ review.comments || 'No comments available.' }}</p>      
                 </div>  
             </div>
         </div>
@@ -151,7 +167,7 @@ export default {
     },
     computed: {
         filteredRequests() {
-            return this.servrequests.filter(request => String(request.professional_id) === String(this.professional_id));
+            return this.servrequests.filter(request => String(request.professional_id) === String(this.professional_id) && request.status === 'closed');
         },
         averageRating() {
             if (!this.filteredRequests.length) return 'No reviews yet.';
@@ -184,6 +200,10 @@ export default {
                 };
             }
         },
+        getServiceName(id) {
+            const service = this.all_services.find(serv => serv.id === id);
+            return service ? service.name : 'Service no longer available';
+        },
         async downloadDocument() {
             const response = await fetch(`${location.origin}/uploads/${this.professional.documents}`, {
                 method: 'GET',
@@ -206,6 +226,22 @@ export default {
         },
         handleFileUpload(event) {
             this.editedProfile.documents = event.target.files[0];
+        },
+        async reRequest() {
+            const res = await fetch(location.origin + '/re_verify', {
+                method: 'POST',
+                headers: {
+                    'Authentication-Token': this.$store.state.auth_token,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({'id' : parseInt(this.professional_id)}),
+            });
+
+            if (res.ok) {
+                alert('Profile Sent for re-verification');
+                this.$store.commit('logout')
+                this.$router.push('/')
+            }
         },
         async submitEditProfile() {
                 let formData = new FormData();

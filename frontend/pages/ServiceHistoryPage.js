@@ -50,7 +50,7 @@ export default {
         filteredRequests() {
             return this.servrequests.filter(request => {
                 return (
-                    request.professional_id === this.$store.state.user_id && (request.status === 'cancelled' || request.status === "closed")
+                    request.professional_id === this.$store.state.user_id && (request.status === 'cancelled' || request.status === "closed" || request.status === "completed")
                 );
             })
         }

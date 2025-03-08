@@ -1,7 +1,7 @@
 from flask import request, current_app as app
 from flask_restful import Api, Resource, fields, marshal_with
 from flask_security import SQLAlchemyUserDatastore, hash_password, auth_required, roles_required, current_user
-from backend.models import User, UserRoles, Service, ProfessionalProfile, ServiceRequest, db
+from backend.models import User, Role, UserRoles, Service, ProfessionalProfile, ServiceRequest, db
 from datetime import datetime
 import os
 
@@ -62,6 +62,17 @@ class Servicename(Resource):
     def delete(self, id):
         service = Service.query.get(id)
         db.session.delete(service)
+        requests = ServiceRequest.query.filter(ServiceRequest.service_id == id).all()
+        for req in requests:
+            if (req.status == 'requested' or req.status == 'assigned' or req.status == 'declined'):
+                req.status = 'cancelled'
+        nextserv = Service.query.filter(Service.name.ilike(service.name)).first()
+        professional = ProfessionalProfile.query.filter(ProfessionalProfile.service_type_id == id).all()
+        for prof in professional:
+            if nextserv:
+                prof.service_type_id = nextserv.id
+            else:
+                prof.is_verified = False
         db.session.commit()
         return {"message": "Service Deleted"}
     
@@ -101,6 +112,22 @@ class Customers(Resource):
             cust = User.query.filter(User.id == user.id).all()
             all_customers.extend(cust)
         return all_customers
+    
+
+class Username(Resource):
+    @auth_required('token')
+    def get(self):
+        name = request.args.get("name", "").strip()
+        
+        if len(name) < 2:
+            return [], 200  # Return empty list with HTTP 200 status
+
+        professionals = User.query.filter(
+            User.roles.any(Role.name == "Professional"),
+            User.username.ilike(f"%{name}%")
+        ).limit(5).all()
+
+        return [{"id": p.id, "username": p.username} for p in professionals], 200
     
 class Customername(Resource):
     @auth_required('token')
@@ -156,7 +183,7 @@ class ServiceRequestname(Resource):
         return servreqname
     
 class EditServiceRequest(Resource):
-    @auth_required("token")
+    @auth_required('token')
     @marshal_with(servicerequest_fields)
     def get(self, customer_id):
         all_requests = ServiceRequest.query.filter_by(customer_id=customer_id).all()
@@ -190,6 +217,7 @@ professional_fields = {
     "experience": fields.Integer,
     "service_type_id": fields.Integer,
     "is_verified": fields.Boolean,
+    "confirmed_at": fields.String,
     "documents": fields.String,
     "professional": fields.Nested(customer_fields),
 }
@@ -230,7 +258,7 @@ class Professional(Resource):
             return {"message": "User already exists"}, 400
 
         userdatastore.create_user(
-            email=email, password=hash_password(password), username=username,
+            email=email, password=hash_password(password), username=username, active=False,
             address=address, pincode=pincode, phone_number=phone_number, roles=['Professional']
         )
 
@@ -324,6 +352,7 @@ class ServiceRequestCust(Resource):
 
 api.add_resource(Services, "/services")
 api.add_resource(Servicename, "/service/<string:name>", "/edit_service/<int:id>", "/delete_service/<int:id>")
+api.add_resource(Username, "/user")
 api.add_resource(Customers, "/customers")
 api.add_resource(Customername, "/customer/<int:id>", "/profile/edit/<int:id>")
 api.add_resource(ServiceRequests, "/request", "/request/service")

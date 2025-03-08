@@ -55,7 +55,13 @@ export default {
                 localStorage.setItem('user', JSON.stringify(data))
 
                 this.$store.commit('setUser')
-                this.$router.push(`/${data.role}`)
+                if (this.$store.state.user_active){
+                    this.$router.push(`/${data.role}`)
+                }else {
+                    alert('You have been restricted from access.')
+                    location.reload();
+                }
+                
             }else {
                 this.feedback = data.message
                 this.showError = true

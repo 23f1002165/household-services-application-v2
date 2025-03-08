@@ -11,6 +11,36 @@ export default {
                         <input type="text" v-model="name" style="width: 300px; border: 1px solid #ccc; padding: 10px; border-radius: 25px;" placeholder="Search for ‘Kitchen Cleaning’">
                     </div>
                 </form>
+
+                <form @submit.prevent="searchProfessional">
+                    <div v-if="$store.state.loggedIn && $store.state.role == 'Admin'" style="position: relative;">
+                        <input 
+                            type="text" 
+                            v-model="pname" 
+                            @input="fetchSuggestions" 
+                            @focus="showDropdown = true"
+                            @blur="hideDropdownWithDelay"
+                            style="width: 300px; border: 1px solid #ccc; padding: 10px; border-radius: 25px;" 
+                            placeholder="Search for ‘Professional’"
+                        />
+                        <ul 
+                            v-if="showDropdown && suggestions.length" 
+                            style="position: absolute; background: white; border: 1px solid #ccc; width: 300px; border-radius: 5px; max-height: 200px; overflow-y: auto; padding: 5px; list-style-type: none;"
+                        >
+                            <li 
+                                v-for="professional in suggestions" 
+                                :key="professional.id" 
+                                @click="selectProfessional(professional)"
+                                style="padding: 10px; cursor: pointer;"
+                                @mouseover="hoveredProfessional = professional.id" 
+                                @mouseleave="hoveredProfessional = null"
+                                :style="{ background: hoveredProfessional === professional.id ? '#f0f0f0' : 'white' }"
+                            >
+                                {{ professional.username }}
+                            </li>
+                        </ul>
+                    </div>
+                </form>
     
                 <div>
                     <router-link v-if="!$store.state.loggedIn" to="/login" style="text-decoration: none; color: black; padding: 8px 16px;">Login</router-link>
@@ -32,6 +62,9 @@ export default {
     `,
     data(){
         return {
+            pname: "",
+            suggestions: [],
+            showDropdown: false,
             name : null,
         }
     },
@@ -54,6 +87,51 @@ export default {
             } finally {
                 this.name = '';
             }
+        },
+        async fetchSuggestions() {
+            if (this.pname.length < 2) {
+                this.suggestions = [];
+                return;
+            }
+            
+            const res = await fetch(location.origin + `/api/user?name=${encodeURIComponent(this.pname)}`, {
+                method: "GET",
+                headers: {
+                    "Authentication-Token": this.$store.state.auth_token,
+                },
+            });
+            const data = await res.json();
+            this.suggestions = res.ok ? data : [];
+        },
+        async searchProfessional() {
+            if (!this.pname.trim()) return;
+            try {
+                const res = await fetch(location.origin + `/api/user?name=${encodeURIComponent(this.pname)}`, {
+                    method: "GET",
+                    headers: {
+                        "Authentication-Token": this.$store.state.auth_token,
+                    },
+                });
+                const data = await res.json();
+                if (res.ok && data.length > 0) {
+                    this.$router.push(`/professional_profile/${data[0].id}`);
+                } else {
+                    this.$router.push("/Admin");
+                }
+            } finally {
+                this.pname = "";
+                this.showDropdown = false;
+            }
+        },
+        selectProfessional(professional) {
+            this.pname = "";
+            this.showDropdown = false;
+            this.$router.push(`/professional_profile/${professional.id}`);
+        },
+        hideDropdownWithDelay() {
+            setTimeout(() => {
+                this.showDropdown = false;
+            }, 200);
         },
         profProfile(){
             this.$router.push(`/professional_profile/${this.$store.state.user_id}`)

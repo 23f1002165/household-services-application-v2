@@ -3,3 +3,5 @@ user-downloads
 *__pycache__
 instance
 celerybeat-schedule
+uploads
+dump.rdb

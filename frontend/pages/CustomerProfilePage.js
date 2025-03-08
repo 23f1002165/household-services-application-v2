@@ -84,15 +84,16 @@ export default {
                             <h4 class="fw-bold">{{ request.service.name }}</h4>
                             <p>{{ request.service.description }}</p>
                         </div>
-                        <span class="fw-bold">
-                            <img src="/static/images/Rating.jpg" style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;">
-                            {{ request.rating || '-' }}
-                        </span>
+                        <div class="mb-3">
+                            <span v-for="star in 5" :key="star" style="font-size: 15px; margin-right: 5px;">
+                            <i :class="star <= request.rating ? 'bi bi-star-fill text-warning' : 'bi bi-star text-secondary'"></i>
+                            </span>
+                        </div>
                     </div>
                     <div style="width: 1000px; height: 1px; background-color: black; margin: 5px auto;"></div>
                     <div class="d-flex align-items-center" style="display: flex; gap: 10px;">
                         <p style="flex: 3; "><img src="/static/images/Profile.jpg" class="rounded-circle" width="40" height="40">
-                        {{ request.professional.username || 'Does not apply' }}</p>
+                        {{ request.professional.username || 'No service expert assigned.' }}</p>
                         <p style="flex: 1; ">{{ request.date_of_request }}</p>
                         <p style="flex: 1; text-align: center;">Job {{ request.status }}</p> 
                     </div>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { width: 80%; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        h2 { color: #6f42c1; }
+        p { font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #6f42c1; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Monthly Activity Report - {{ customer.username }}</h2>
+        <p>Dear {{ customer.username }},</p>
+        <p>Here's a summary of your service activities for the last month:</p>
+
+        <table>
+            <tr>
+                <th>Total Services Requested</th>
+                <td>{{ total_requested }}</td>
+            </tr>
+            <tr>
+                <th>Total Services Closed</th>
+                <td>{{ total_closed }}</td>
+            </tr>
+            <tr>
+                <th>Total Services</th>
+                <td>{{ total_services }}</td>
+            </tr>
+        </table>
+
+        <h3>Service Details:</h3>
+        <table>
+            <tr>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Date Requested</th>
+                <th>Professional</th>
+            </tr>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.service.name }}</td>
+                <td>{{ request.status }}</td>
+                <td>{{ request.date_of_request }}</td>
+                <td>{{ request.professional.username }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <p>Thank you for using our services!</p>
+    </div>
+</body>
+</html>

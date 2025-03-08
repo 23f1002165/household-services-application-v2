@@ -1,6 +1,6 @@
 from flask import current_app as app, jsonify, request, render_template, send_file, send_from_directory
 from flask_security import auth_required, verify_password, hash_password, roles_required
-from backend.models import User, Service, ProfessionalProfile, db
+from backend.models import User, Service, ProfessionalProfile, ServiceRequest, db
 from datetime import datetime
 from backend.celery.tasks import create_csv
 from celery.result import AsyncResult
@@ -72,12 +72,32 @@ def register():
     datastore.create_user(email = email, password = hash_password(password), username = username, address = address, pincode = pincode, phone_number = phone_number, roles=['Customer'])
     db.session.commit()
     return jsonify({"message" : "User created"}), 200
+
+@app.post('/re_verify')
+def re_verify():
+    data = request.get_json()
+    id  = data.get('id')
+    customer = User.query.get(id)
+    customer.active = False
+    db.session.commit()
+    return {"message": "Professional Request Sent for Approval"}, 200
     
 @app.get("/status/customer/<int:id>")
 @auth_required("token")
 @roles_required("Admin")
 def status_customer(id):
+    today = datetime.now().strftime("%d/%m/%Y %I:%M %p")
     customer = User.query.get(id)
+    if customer.active:
+        requests = ServiceRequest.query.filter(ServiceRequest.customer_id == id).all()
+        for req in requests:
+            if (req.status == 'requested' or req.status == 'assigned' or req.status == 'declined'):
+                req.status = 'cancelled'
+                req.date_of_completion = today
+            elif (req.status == 'started' or req.status == 'completed'):
+                req.rating = 5
+                req.review_created_at = today
+                req.status = 'closed'
     customer.active = not customer.active
     db.session.commit()
     status = "Activated" if customer.active else "Deactivated"
@@ -87,8 +107,12 @@ def status_customer(id):
 @auth_required("token")
 @roles_required("Admin")
 def verify_professional(id):
+    today = datetime.now().strftime("%d/%m/%Y %I:%M %p")
+    customer = User.query.get(id)
+    customer.active = True
     professional = ProfessionalProfile.query.filter_by(professional_id=id).first()
     professional.is_verified = True
+    #professional.confirmed_at = today
     db.session.commit()
     return jsonify({"message": "Professional successfully verified"})
 
@@ -96,9 +120,6 @@ def verify_professional(id):
 @auth_required("token")
 @roles_required("Admin")
 def deny_professional(id):
-    professional = User.query.get(id)
-    professional.active = False
-    db.session.commit()
     professional = ProfessionalProfile.query.filter_by(professional_id=id).first()
     professional.is_verified = False
     db.session.commit()
@@ -109,6 +130,11 @@ def deny_professional(id):
 @roles_required("Admin")
 def status_professional(id):
     professional = User.query.get(id)
+    if professional.active:
+        requests = ServiceRequest.query.filter(ServiceRequest.professional_id == id).all()
+        for req in requests:
+            if (req.status == 'assigned' or req.status == 'started'):
+                req.status = 'declined'
     professional.active = not professional.active
     db.session.commit()
     status = "Activated" if professional.active else "Deactivated"

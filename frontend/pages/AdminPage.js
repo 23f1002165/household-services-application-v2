@@ -54,11 +54,11 @@ export default {
                                 <p class="card-text">
                                 <span style="margin: 10px 10px;" class="text-dark" v-if="professional.professional.active">
                                     <span v-if="professional.is_verified">✔️ Verified</span>
-                                    <span v-else>Under process</span>
+                                    <span v-else>🚫 Verfication Declined</span>
                                 </span>
                                 <span style="margin: 10px 10px;" class="text-dark" v-if="!professional.professional.active">
                                     <span v-if="professional.is_verified">❌ Blocked</span>
-                                    <span v-else>🚫 Verfication Declined</span>
+                                    <span v-else> ⟳ Approval Process Ongoing</span>
                                 </span>
                                 </p>
                             </div>
@@ -139,7 +139,7 @@ export default {
         },
         getServiceName(id) {
             const service = this.all_services.find(serv => serv.id === id);
-            return service ? service.name : "Unknown Service";
+            return service ? service.name : 'Service no longer available';
         },
         async fetchrequests(){
             const res = await fetch(location.origin + '/api/request', {

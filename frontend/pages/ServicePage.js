@@ -108,7 +108,7 @@ export default {
                         </div>
                         <span>⭐ {{ review.rating }}</span>
                     </div>
-                    <p class="mt-2">{{ review.comments }}</p>      
+                    <p class="mt-2">{{ review.comments || 'No comments available.'}}</p>      
                 </div>    
             </div>
         </div>

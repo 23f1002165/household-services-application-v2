@@ -11,7 +11,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     active = db.Column(db.Boolean, default=True)
-    confirmed_at = db.Column(db.DateTime)
     address = db.Column(db.String, nullable=False)
     pincode = db.Column(db.String(6), nullable=False)
     phone_number = db.Column(db.String, nullable=False)
@@ -36,8 +35,9 @@ class ProfessionalProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     professional_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     experience = db.Column(db.Integer, nullable=False)
-    service_type_id = db.Column(db.Integer, db.ForeignKey('services.id', ondelete='CASCADE'),nullable=False)
+    service_type_id = db.Column(db.Integer, db.ForeignKey('services.id'),nullable=False)
     is_verified = db.Column(db.Boolean, default=False)
+    confirmed_at = db.Column(db.String, nullable=True)
     documents=db.Column(db.String, nullable=False)
 
     professional = db.relationship('User', backref='professional', lazy=True, uselist=False)
@@ -53,7 +53,7 @@ class Service(db.Model):
 class ServiceRequest(db.Model):
     __tablename__ = 'service_requests'
     id = db.Column(db.Integer, primary_key=True)
-    service_id = db.Column(db.Integer, db.ForeignKey('services.id'), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey('services.id'))
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     professional_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     date_of_request = db.Column(db.String, nullable=False)

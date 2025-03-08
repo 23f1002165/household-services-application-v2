@@ -31,7 +31,7 @@ export default {
                             <i :class="star <= request.rating ? 'bi bi-star-fill text-warning' : 'bi bi-star text-secondary'"></i>
                             </span>
                         </div>
-                        <p class="text-muted">{{ request.comments }}</p>
+                        <p class="text-muted">{{ request.comments || 'No comments available.' }}</p>
                         <button style="border: none; background-color: white; color: #6f42c1; font-size: 15px; outline: none;" @click="show(request)">
                         {{ request.show ? 'Close' : 'Edit your feedback' }}
                         </button>
