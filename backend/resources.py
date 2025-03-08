@@ -18,7 +18,7 @@ service_fields = {
 }
 
 class Services(Resource):
-    #@cache.cached(timeout = 5, key_prefix = "services")
+    @cache.cached(timeout = 60, key_prefix = "services")
     @marshal_with(service_fields)
     def get(self):
         all_services = Service.query.all()
@@ -39,7 +39,7 @@ class Services(Resource):
     
 class Servicename(Resource):
     @auth_required('token')
-    #@cache.memoize(timeout = 5)
+    @cache.memoize(timeout = 60)
     @marshal_with(service_fields)
     def get(self, name):
         all_services = Service.query.filter(Service.name.ilike(name)).all()
@@ -59,6 +59,7 @@ class Servicename(Resource):
         return {"message": "Service edited successfully."}
     
     @auth_required("token")
+    @roles_required("Admin")
     def delete(self, id):
         service = Service.query.get(id)
         db.session.delete(service)
@@ -103,7 +104,7 @@ servicerequest_fields = {
 }
 
 class Customers(Resource):
-    #@cache.cached(timeout = 5, key_prefix = "services")
+    @cache.cached(timeout = 120, key_prefix = "customers")
     @marshal_with(customer_fields)
     def get(self):
         users = UserRoles.query.filter(UserRoles.role_id == 2).all()
@@ -116,6 +117,7 @@ class Customers(Resource):
 
 class Username(Resource):
     @auth_required('token')
+    @cache.memoize(timeout=30)
     def get(self):
         name = request.args.get("name", "").strip()
         
@@ -131,7 +133,6 @@ class Username(Resource):
     
 class Customername(Resource):
     @auth_required('token')
-    #@cache.memoize(timeout = 5)
     @marshal_with(customer_fields)
     def get(self, id):
         customer = User.query.filter(User.id==id).first()
@@ -153,6 +154,7 @@ class Customername(Resource):
     
 class ServiceRequests(Resource):
     @auth_required("token")
+    @cache.cached(timeout=60, key_prefix="service_requests")
     @marshal_with(servicerequest_fields)
     def get(self):
         all_requests = ServiceRequest.query.all()
@@ -171,7 +173,6 @@ class ServiceRequests(Resource):
     
 class ServiceRequestname(Resource):
     @auth_required('token')
-    #@cache.memoize(timeout = 5)
     @marshal_with(servicerequest_fields)
     def get(self, name):
         servname = Service.query.filter(Service.name.ilike(name)).all()
@@ -277,7 +278,6 @@ class Professional(Resource):
     
 class Professionalname(Resource):
     @auth_required('token')
-    #@cache.memoize(timeout = 5)
     @marshal_with(professional_fields)
     def get(self, professional_id):
         professional = ProfessionalProfile.query.filter(ProfessionalProfile.professional_id==professional_id).first()
@@ -331,7 +331,7 @@ class Professionalname(Resource):
         return {"message": "Profile updated successfully."}, 200
     
 class ServiceRequestProf(Resource):
-    #@auth_required("token")
+    @auth_required("token")
     @marshal_with(servicerequest_fields)
     def get(self, id):
         profile = ProfessionalProfile.query.filter_by(professional_id=id).first()
@@ -344,7 +344,7 @@ class ServiceRequestProf(Resource):
         return servrequests
 
 class ServiceRequestCust(Resource):
-    #@auth_required("token")
+    @auth_required("token")
     @marshal_with(servicerequest_fields)
     def get(self, id):
         servrequests = ServiceRequest.query.filter_by(customer_id=id).all()

@@ -1,5 +1,4 @@
 import requests
-
 GOOGLE_CHAT_WEBHOOK = "https://chat.googleapis.com/v1/spaces/AAAA_opZ7Ew/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=Tni9OKSnqgJQCuuDwV5FwXjIrD5tGL4eSpnHg3rrozQ"
 
 def send_gchat_reminder(message):
