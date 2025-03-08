@@ -1,6 +1,7 @@
 from flask import current_app as app
 from flask_security import SQLAlchemyUserDatastore, hash_password
 from backend.models import db, User, Role, ProfessionalProfile, Service, ServiceRequest
+from datetime import datetime
 
 with app.app_context():
     db.create_all()
@@ -32,8 +33,9 @@ with app.app_context():
         professional=True
     db.session.commit()
 
+    today = datetime.now().strftime("%d/%m/%Y %I:%M %p")
     if professional:
-        professional_profile = ProfessionalProfile(professional_id=professional_user.id, experience=5, service_type_id=1, is_verified=True, documents='plumbing_certificate.pdf')
+        professional_profile = ProfessionalProfile(professional_id=professional_user.id, experience=5, service_type_id=1, is_verified=True, confirmed_at=today, documents='plumbing_certificate.pdf')
         db.session.add(professional_profile)
 
     db.session.commit()

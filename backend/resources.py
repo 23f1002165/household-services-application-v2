@@ -122,7 +122,7 @@ class Username(Resource):
         name = request.args.get("name", "").strip()
         
         if len(name) < 2:
-            return [], 200  # Return empty list with HTTP 200 status
+            return [], 200
 
         professionals = User.query.filter(
             User.roles.any(Role.name == "Professional"),
