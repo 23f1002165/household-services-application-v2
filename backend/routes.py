@@ -112,7 +112,7 @@ def verify_professional(id):
     customer.active = True
     professional = ProfessionalProfile.query.filter_by(professional_id=id).first()
     professional.is_verified = True
-    #professional.confirmed_at = today
+    professional.confirmed_at = today
     db.session.commit()
     return jsonify({"message": "Professional successfully verified"})
 

@@ -10,6 +10,7 @@ import RecentlyBookedPage from "../pages/RecentlyBookedPage.js";
 import ServivceHistoryPage from "../pages/ServiceHistoryPage.js";
 import AddServicePage from "../pages/AddServicePage.js";
 import AdminPage from "../pages/AdminPage.js";
+import CSVPage from "../pages/CSVPage.js";
 import HomePage from "../pages/HomePage.js";
 import ServicePage from "../pages/ServicePage.js";
 import EditServicePage from "../pages/EditServicePage.js";
@@ -29,6 +30,7 @@ const routes = [
     {path : '/Professional', component : ProfessionalPage, meta : {requiresLogin : true, role : "Professional"}},
     {path : '/Professional/history', component : ServivceHistoryPage, meta : {requiresLogin : true, role : "Professional"}},
     {path : '/Admin', component : AdminPage, meta : {requiresLogin : true, role : "Admin"}},
+    {path : '/Admin/report', component : CSVPage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/Admin/add_service', component : AddServicePage, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/edit_service/:name', component : EditServicePage, props : true, meta : {requiresLogin : true, role : "Admin"}},
     {path : '/professional_profile/:professional_id', component : ProfessionalProfilePage, props : true, meta : {requiresLogin : true, role : ["Admin", "Professional"]}},

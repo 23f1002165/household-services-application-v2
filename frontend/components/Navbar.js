@@ -46,6 +46,7 @@ export default {
                     <router-link v-if="!$store.state.loggedIn" to="/login" style="text-decoration: none; color: black; padding: 8px 16px;">Login</router-link>
                     <!-- Admin Links -->
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Admin'" to="/Admin" style="text-decoration: none; color: black; padding: 8px 16px;">Dashboard</router-link>
+                    <router-link v-if="$store.state.loggedIn && $store.state.role == 'Admin'" to="/Admin/report" style="text-decoration: none; color: black; padding: 8px 16px;">Analytics & Reports</router-link>
                     <!-- Customer Dashboard -->
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Customer'" to="/Customer" style="text-decoration: none; color: black; padding: 8px 16px;">Dashboard</router-link>
                     <router-link v-if="$store.state.loggedIn && $store.state.role == 'Customer'" to="/Customer/bookings" style="text-decoration: none; color: black; padding: 8px 16px;">My bookings</router-link>
