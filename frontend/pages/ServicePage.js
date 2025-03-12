@@ -27,7 +27,7 @@ export default {
                         <div style="display: grid; grid-template-columns: repeat(1, minmax(120px, 1fr));">
                             <img src="/static/images/Home.jpg" class="rounded" width="120" height="80">
                             <button class="btn-link" style="margin: 5px 20px; background: none; border: 1px solid #6f42c1; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; color: #6f42c1; font-size: 16px; outline: none;" @click="slotSelection(servname.id)">
-                                {{ selectedServiceId === servname.id && showSlots ? 'Close' : 'Add' }}
+                                {{ selectedServiceId === servname.id && (showSlots || showPaymentPortal) ? 'Close' : 'Add' }}
                             </button>
                         </div>
                     </div>
@@ -73,19 +73,30 @@ export default {
                                 {{ slot.time }}
                             </button>
                         </div>
-                        <button class="btn mt-4 w-100" style="background: #6f42c1; border: 1px solid #6f42c1; border-radius: 5px; color: white; font-size: 16px" :disabled="!selectedSlot" @click="proceedToCheckout(servname.id)">
+                        <button class="btn mt-4 w-100" style="background: #6f42c1; border: 1px solid #6f42c1; border-radius: 5px; color: white; font-size: 16px" :disabled="!selectedSlot" @click="proceedToCheckout">
                             Proceed to Payment
                         </button>
                     </div>
-                    <div v-if="showPaymentPortal" style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-                        <h3 class="fw-bold">Payment Details</h3>
+                    <div v-if="showPaymentPortal && selectedServiceId === servname.id" style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                        <h6 class="mb-10">Payment Details</h6>
+                        <p>
                         <label>Card Number</label>
-                        <input type="text" class="form-control mb-2" placeholder="1234 5678 9101 1121">
+                        <input type="text" v-model="payment.cardNumber" class="form-control mb-2" placeholder="1234 5678 9101 1121" @input="validateCardNumber">
+                        <small v-if="errors.cardNumber" style="color: red;">{{ errors.cardNumber }}</small>
+                        </p>
+                        <p>
                         <label>Expiry Date</label>
-                        <input type="text" class="form-control mb-2" placeholder="MM/YY">
+                        <input type="text" v-model="payment.expiryDate" class="form-control mb-2" placeholder="MM/YY" @input="validateExpiryDate">
+                        <small v-if="errors.expiryDate" style="color: red;">{{ errors.expiryDate }}</small>
+                        </p>
+                        <p>
                         <label>CVV</label>
-                        <input type="text" class="form-control mb-2" placeholder="123">
-                        <button class="btn w-100 mt-3" style="background: #6f42c1; color: white;" @click="confirmPayment">
+                        <input type="text" v-model="payment.cvv" class="form-control mb-2" placeholder="123" @input="validateCVV">
+                        <small v-if="errors.cvv" style="color: red;">{{ errors.cvv }}</small>
+                        </p>
+                        <button class="btn w-100 mt-3" style="background: #6f42c1; color: white;" 
+                            @click="confirmPayment(servname.id)" 
+                            :disabled="!isFormValid">
                             Confirm Payment
                         </button>
                     </div>
@@ -146,6 +157,16 @@ export default {
             availableDates: this.generateNextThreeDays(),
             availableSlots: [],
             selectedDate: null,
+            payment: {
+                cardNumber: "",
+                expiryDate: "",
+                cvv: ""
+            },
+            errors: {
+                cardNumber: "",
+                expiryDate: "",
+                cvv: ""
+            }
         }
     },
     computed: {
@@ -173,13 +194,27 @@ export default {
 
             return ratingsMap;
         },
+        isFormValid() {
+            return (
+                !this.errors.cardNumber &&
+                !this.errors.expiryDate &&
+                !this.errors.cvv &&
+                this.payment.cardNumber.length === 19 &&
+                this.payment.expiryDate.length === 5 &&
+                this.payment.cvv.length === 3
+            );
+        }
     },
     methods: {
         slotSelection(serviceId){
-            this.selectedSlot = null;
-            this.selectedServiceId = this.selectedServiceId === serviceId ? null : serviceId;
-            this.showSlots = this.selectedServiceId !== null;
-            if (this.showSlots) {
+            if (this.selectedServiceId === serviceId) {
+                this.selectedServiceId = null;
+                this.showSlots = false;
+                this.showPaymentPortal = false;
+            } else {
+                this.selectedServiceId = serviceId;
+                this.showSlots = true;
+                this.showPaymentPortal = false;
                 this.availableSlots = this.generateAvailableSlots(this.selectedDate);
             }
         },
@@ -225,7 +260,35 @@ export default {
             const formattedHours = hours % 12 || 12;
             return `${formattedHours}:${minutes}`;
         },
-        async proceedToCheckout(serviceId){
+        proceedToCheckout(){
+            this.showSlots = false;
+            this.showPaymentPortal = true;
+        },
+        validateCardNumber() {
+            const regex = /^\d{4} \d{4} \d{4} \d{4}$/;
+            if (!regex.test(this.payment.cardNumber)) {
+                this.errors.cardNumber = "Card number must be 16 digits (XXXX XXXX XXXX XXXX)";
+            } else {
+                this.errors.cardNumber = "";
+            }
+        },
+        validateExpiryDate() {
+            const regex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+            if (!regex.test(this.payment.expiryDate)) {
+                this.errors.expiryDate = "Enter a valid date (MM/YY)";
+            } else {
+                this.errors.expiryDate = "";
+            }
+        },
+        validateCVV() {
+            const regex = /^\d{3}$/;
+            if (!regex.test(this.payment.cvv)) {
+                this.errors.cvv = "CVV must be 3 digits";
+            } else {
+                this.errors.cvv = "";
+            }
+        },
+        async confirmPayment(serviceId) {
             const res = await fetch(location.origin+'/api/request/service',
                 {
                     method: 'POST',
@@ -237,13 +300,10 @@ export default {
                 })
             const data = await res.json()
             if(res.ok){
+                alert('Payment Successful! Your service request is confirmed.');
+                this.showPaymentPortal = false;
                 this.$router.push('/Customer/bookings')
-                this.showPaymentPortal = true;
             }
-        },
-        confirmPayment() {
-            alert('Payment Successful! Your service request is confirmed.');
-            this.showPaymentPortal = false;
         },
         async fetchReviews() {
             const res = await fetch(`${location.origin}/api/service_request/${this.name}`, {
