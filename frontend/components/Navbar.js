@@ -81,7 +81,7 @@ export default {
                     })
                 const data = await res.json()
                 if (res.ok) {
-                    this.$router.push(`/service/${data.name}`)
+                    this.$router.push('/service/'+this.name)
                 } else {
                     this.$router.push('/other_services')
                 }

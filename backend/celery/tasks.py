@@ -12,7 +12,7 @@ def create_csv(self):
     column_names = [column.name for column in ServiceRequest.__table__.columns]
     csv_out = flask_excel.make_response_from_query_sets(resource, column_names = column_names, file_type='csv' )
 
-    with open(f'./backend/celery/user-downloads/{filename}', 'wb') as file:
+    with open(f'./backend/celery/user_downloads/{filename}', 'wb') as file:
         file.write(csv_out.data)
     return 'ServiceRequest_data.csv'
 
@@ -52,20 +52,19 @@ def send_service_reminders():
 def send_monthly_report():
     today = datetime.today()
     first_day_last_month = (today.replace(day=1) - timedelta(days=1)).replace(day=1)
-    last_day_last_month = today.replace(day=1) - timedelta(days=1)
 
     customers = User.query.filter(User.active == True, User.roles.any(Role.name == "Customer")).all()
 
     for customer in customers:
-        requests = ServiceRequest.query.filter(
-            ServiceRequest.customer_id == customer.id,
-            ServiceRequest.date_of_request >= first_day_last_month,
-            ServiceRequest.date_of_request <= last_day_last_month
-        ).all()
-
-        total_requested = sum(1 for r in requests if r.status == "requested")
-        total_closed = sum(1 for r in requests if r.status == "closed")
+        requests = [
+            r for r in ServiceRequest.query.filter(ServiceRequest.customer_id == customer.id).all()
+            if first_day_last_month <= datetime.strptime(r.date_of_request.split()[0], "%Y-%m-%d") <= today
+        ]
+        
+        total_requested = sum(1 for r in requests if r.status in {"requested", "assigned", "declined", "started", "completed"})
+        total_closed = sum(1 for r in requests if r.status in {"closed", "cancelled"})
         total_services = len(requests)
+        
 
         html_content = render_template(
             "monthly_report.html",

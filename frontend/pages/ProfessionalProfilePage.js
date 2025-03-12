@@ -28,7 +28,7 @@ export default {
                     </div>
                 </div>
                 <div v-if="professional.is_verified">
-                    <p class="fw-bold">Hired on {{ professional.professional.confirmed_at }}</p>
+                    <p class="fw-bold">Hired on {{ professional.confirmed_at }}</p>
                 </div>
                 <h6 class="mb-0">Overall service rating.</h6>
                 <div class="mb-3">

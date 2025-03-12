@@ -16,7 +16,7 @@ export default {
                 <img src="/static/images/Plumbing.jpg" style="width: 50px; height: 50px; margin-right: 15px;">
                 <span style="font-size: 16px; font-weight: 500;">Plumbing</span>
               </div>
-              <div @click="$router.push('/service/AC')" style="flex: 1; padding: 15px; display: flex; align-items: center; border-radius: 10px; background-color: #f8f9fa; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); cursor: pointer;">
+              <div @click="$router.push('/service/AC & Appliance Repair')" style="flex: 1; padding: 15px; display: flex; align-items: center; border-radius: 10px; background-color: #f8f9fa; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); cursor: pointer;">
                 <img src="/static/images/AC.jpg" style="width: 50px; height: 50px; margin-right: 15px;">
                 <span style="font-size: 16px; font-weight: 500;">AC & Appliance Repair</span>
               </div>

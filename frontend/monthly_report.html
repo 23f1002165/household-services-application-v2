@@ -42,10 +42,10 @@
             </tr>
             {% for request in requests %}
             <tr>
-                <td>{{ request.service.name }}</td>
-                <td>{{ request.status }}</td>
-                <td>{{ request.date_of_request }}</td>
-                <td>{{ request.professional.username }}</td>
+                <td>{{ request.service.name if request.service and request.service.name else '-' }}</td>
+                <td>{{ request.status if request.status else '-' }}</td>
+                <td>{{ request.date_of_request if request.date_of_request else '-' }}</td>
+                <td>{{ request.professional.username if request.professional and request.professional.username else '-' }}</td>
             </tr>
             {% endfor %}
         </table>

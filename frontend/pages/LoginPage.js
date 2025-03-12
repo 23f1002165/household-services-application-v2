@@ -59,7 +59,8 @@ export default {
                     this.$router.push(`/${data.role}`)
                 }else {
                     alert('You have been restricted from access.')
-                    location.reload();
+                    this.$store.commit('logout')
+                    this.$router.push('/')
                 }
                 
             }else {

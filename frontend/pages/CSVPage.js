@@ -6,9 +6,13 @@ export default {
                     <h3 class="fw-bold">Overall Customer Ratings</h3>
                 </div>
                 <div class="container" style="width: 500px; margin-right: 250px; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0;">
-                    <div class="charts-container" style="width: 400px; height: 400px;">
+                    <div class="text-center " v-if="all_requests.length === 0" style="width: 400px; height: 400px;">
+                        <h3 class="fw-bold">Analytics and reports</h3>
+                        <p class="text-muted m-0">will be available once customers start booking services.</p>
+                    </div>    
+                    <div v-else class="charts-container" style="width: 400px; height: 400px;">
                         <div class="chart-box">
-                            <canvas id="ratingsChart"></canvas>
+                            <canvas ref="ratingsChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -17,9 +21,13 @@ export default {
                     <h3 class="fw-bold">Service Requests Summary</h3>
                 </div>
                 <div class="container" style="width: 600px; height: 500px; margin-right: 200px; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0;">
-                    <div class="charts-container" style="width: 500px; height: 300px;">
+                    <div class="text-center" v-if="all_requests.length === 0" style="width: 500px; height: 300px;">
+                        <h3 class="fw-bold">Analytics and reports</h3>
+                        <p class="text-muted m-0">will be available once customers start booking services.</p>
+                    </div>    
+                    <div v-else class="charts-container" style="width: 500px; height: 300px;">
                         <div class="chart-box">
-                            <canvas id="requestsChart"></canvas>
+                            <canvas ref="requestsChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -32,6 +40,8 @@ export default {
             all_requests: [],
             ratingsData: [],
             requestsData: [],
+            ratingsChartInstance: null,
+            requestsChartInstance: null,
         }
     },
     methods : {
@@ -46,8 +56,10 @@ export default {
 
             const ratingCounts = [0, 0, 0, 0, 0];
             data.forEach((req) => {
-                if (req.rating >= 1 && req.rating <= 5) {
-                    ratingCounts[req.rating - 1]++;
+                if (req.rating!=null) {
+                    if (req.rating >= 1 && req.rating <= 5) {
+                        ratingCounts[req.rating - 1]++;
+                    }
                 }
             });
             this.ratingsData = ratingCounts;
@@ -60,58 +72,68 @@ export default {
             });
             this.requestsData = Object.values(statusCounts);
     
-            this.renderCharts();
+            this.$nextTick(() => this.renderCharts());
         
         },
         renderCharts(){
-            new Chart(document.getElementById("ratingsChart"), {
-                type: "pie",
-                data: {
-                    labels: ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"],
-                    datasets: [
-                        {
-                            data: this.ratingsData,
-                            backgroundColor: ["#FF0000", "#FF6384", "#36A2EB", "#4BC0C0", "#9966FF"],
-                        },
-                    ],
-                },
-                options: {
-                    aspectRatio: 1.1,
-                },
-            });
-        
-            new Chart(document.getElementById("requestsChart"), {
-                type: "bar",
-                data: {
-                    labels: ["Requested", "Assigned", "Declined", "Completed", "Cancelled", "Closed", "Started"],
-                    datasets: [
-                        {
-                            data: this.requestsData,
-                            backgroundColor: ["#FF6384", "#36A2EB", "#4BC0C0", "#FFCE56", "#9966FF", "#8A2BE2", "#FF6384"],
-                        },
-                    ],
-                },
-                options: {
-                    aspectRatio: 1.1,
-                    plugins: {
-                        legend: {
-                            display: false,
-                        },
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false }
-                        },
-                        y: {
-                            ticks: {
-                                beginAtZero: true,
-                                stepSize: 1,
+            if (this.ratingsChartInstance) this.ratingsChartInstance.destroy();
+            if (this.requestsChartInstance) this.requestsChartInstance.destroy();
+
+            const ratingsCanvas = this.$refs.ratingsChart;
+            const requestsCanvas = this.$refs.requestsChart;
+
+            if (ratingsCanvas) {
+                this.ratingsChartInstance = new Chart(ratingsCanvas, {
+                    type: "pie",
+                    data: {
+                        labels: ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"],
+                        datasets: [
+                            {
+                                data: this.ratingsData,
+                                backgroundColor: ["#FF0000", "#FF6384", "#36A2EB", "#4BC0C0", "#9966FF"],
                             },
-                            grid: { display: false }
+                        ],
+                    },
+                    options: {
+                        aspectRatio: 1.1,
+                    },
+                });
+            }
+        
+            if (requestsCanvas) {
+                this.requestsChartInstance = new Chart(requestsCanvas, {
+                    type: "bar",
+                    data: {
+                        labels: ["Requested", "Assigned", "Declined", "Completed", "Cancelled", "Closed", "Started"],
+                        datasets: [
+                            {
+                                data: this.requestsData,
+                                backgroundColor: ["#FF6384", "#36A2EB", "#4BC0C0", "#FFCE56", "#9966FF", "#8A2BE2", "#FF6384"],
+                            },
+                        ],
+                    },
+                    options: {
+                        aspectRatio: 1.1,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false }
+                            },
+                            y: {
+                                ticks: {
+                                    beginAtZero: true,
+                                    stepSize: 1,
+                                },
+                                grid: { display: false }
+                            }
                         }
-                    }
-                },
-            });
+                    },
+                });
+            }
         },
     },
     async mounted(){

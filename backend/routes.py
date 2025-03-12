@@ -24,7 +24,7 @@ def getCSV(id):
     result = AsyncResult(id)
 
     if result.ready():
-        return send_file(f'./backend/celery/user-downloads/{result.result}'), 200
+        return send_file(f'./backend/celery/user_downloads/{result.result}'), 200
     else:
         return {'message' : 'task not ready'}, 405
 
@@ -120,8 +120,8 @@ def verify_professional(id):
 @auth_required("token")
 @roles_required("Admin")
 def deny_professional(id):
-    professional = ProfessionalProfile.query.filter_by(professional_id=id).first()
-    professional.is_verified = False
+    customer = User.query.get(id)
+    customer.active = True
     db.session.commit()
     return jsonify({"message": "Professional approval refused"})
 

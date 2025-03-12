@@ -4,15 +4,12 @@ from flask import current_app as app
 celery_app = app.extensions['celery']
 
 celery_app.conf.beat_schedule = {
-    "send_daily_service_reminders": {
+    "send_service_reminders": {
         "task": "backend.celery.tasks.send_service_reminders",
-        "schedule": crontab(hour=18, minute=0),
+        "schedule": crontab(hour=9, minute=10),
     },
-}
-
-celery_app.conf.beat_schedule = {
     "send_monthly_reports": {
         "task": "backend.celery.tasks.send_monthly_report",
-        "schedule": crontab(day_of_month=1, hour=18, minute=0),
+        "schedule": crontab(day_of_month=12, hour=9, minute=10),
     }
 }

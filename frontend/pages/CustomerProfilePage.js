@@ -81,7 +81,7 @@ export default {
                 >
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <h4 class="fw-bold">{{ request.service.name }}</h4>
+                            <h4 class="fw-bold">{{ request.service.name || 'Service no longer available' }}</h4>
                             <p>{{ request.service.description }}</p>
                         </div>
                         <div class="mb-3">

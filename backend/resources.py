@@ -39,10 +39,10 @@ class Services(Resource):
     
 class Servicename(Resource):
     @auth_required('token')
-    @cache.memoize(timeout = 60)
+    #@cache.memoize(timeout = 60)
     @marshal_with(service_fields)
     def get(self, name):
-        all_services = Service.query.filter(Service.name.ilike(name)).all()
+        all_services = Service.query.filter(Service.name.ilike(f"%{name}%")).all()
         if not all_services:
             return {"message" : "Service not found"}, 404
         
@@ -62,11 +62,11 @@ class Servicename(Resource):
     @roles_required("Admin")
     def delete(self, id):
         service = Service.query.get(id)
-        db.session.delete(service)
         requests = ServiceRequest.query.filter(ServiceRequest.service_id == id).all()
         for req in requests:
             if (req.status == 'requested' or req.status == 'assigned' or req.status == 'declined'):
                 req.status = 'cancelled'
+        db.session.delete(service)
         nextserv = Service.query.filter(Service.name.ilike(service.name)).first()
         professional = ProfessionalProfile.query.filter(ProfessionalProfile.service_type_id == id).all()
         for prof in professional:
@@ -225,6 +225,7 @@ professional_fields = {
 
 UPLOAD_FOLDER = 'uploads/'
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
