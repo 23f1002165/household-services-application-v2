@@ -11,7 +11,8 @@ This is a Household Services Application built with Flask and Vue.js, supporting
 - **Customer Features**: Search for services by location, name, or pin code. Browse ratings and reviews before booking a service.
 - **Professional Features**: Accept/reject service requests, mark them as completed, receive automated reminders, and initiate services using an OTP.
 - **Admin Features**: Manage services, search for professionals, and block/unblock users if necessary.
-- **OTP-Based Service Initiation**: Customers receive a one-time password (OTP) when scheduling a service. Professionals must enter the OTP to start the service, ensuring authenticity.
+- **OTP-Based Service Initiation**: Customers receive a one-time password (OTP) when starting a service request. Professionals must enter the OTP to complete the service, ensuring authenticity.
+- **Dummy Payment Portal**: Implemented a dummy payment portal that takes payment details from customers for a service request.
 - **Automated Email Reports**: Celery generates and sends monthly activity reports to customers.
 - **Task Scheduling**: Celery Beat automates periodic tasks like report generation and email distribution.
 - **Performance Optimization**: Redis caching enhances API performance and reduces response time.
@@ -21,8 +22,8 @@ This is a Household Services Application built with Flask and Vue.js, supporting
 
 ### 1. Create a Virtual Environment
 ```sh
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 ### 2. Install Backend Dependencies

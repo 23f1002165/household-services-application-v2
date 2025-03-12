@@ -74,11 +74,21 @@ export default {
                             </button>
                         </div>
                         <button class="btn mt-4 w-100" style="background: #6f42c1; border: 1px solid #6f42c1; border-radius: 5px; color: white; font-size: 16px" :disabled="!selectedSlot" @click="proceedToCheckout(servname.id)">
-                            Proceed to Checkout
+                            Proceed to Payment
                         </button>
                     </div>
-
-
+                    <div v-if="showPaymentPortal" style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                        <h3 class="fw-bold">Payment Details</h3>
+                        <label>Card Number</label>
+                        <input type="text" class="form-control mb-2" placeholder="1234 5678 9101 1121">
+                        <label>Expiry Date</label>
+                        <input type="text" class="form-control mb-2" placeholder="MM/YY">
+                        <label>CVV</label>
+                        <input type="text" class="form-control mb-2" placeholder="123">
+                        <button class="btn w-100 mt-3" style="background: #6f42c1; color: white;" @click="confirmPayment">
+                            Confirm Payment
+                        </button>
+                    </div>
 
                     <div style="width: 450px; height: 1px; background-color: black; margin: 20px auto;"></div>
                 </div>
@@ -130,6 +140,7 @@ export default {
             all_services: [],
             servreqname : [],
             selectedServiceId: null,
+            showPaymentPortal: false,
             showSlots: false,
             selectedSlot: null,
             availableDates: this.generateNextThreeDays(),
@@ -227,8 +238,12 @@ export default {
             const data = await res.json()
             if(res.ok){
                 this.$router.push('/Customer/bookings')
-                alert(`Proceeding with service on ${this.selectedDate} at ${this.selectedSlot}`);
+                this.showPaymentPortal = true;
             }
+        },
+        confirmPayment() {
+            alert('Payment Successful! Your service request is confirmed.');
+            this.showPaymentPortal = false;
         },
         async fetchReviews() {
             const res = await fetch(`${location.origin}/api/service_request/${this.name}`, {
