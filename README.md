@@ -28,7 +28,7 @@ source .venv/bin/activate
 
 ### 2. Install Backend Dependencies
 ```sh
-pip install -r requirements.txt
+pip install -r req.txt
 ```
 
 ## Running the Application
