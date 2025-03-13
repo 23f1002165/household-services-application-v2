@@ -1,4 +1,0 @@
-id,service_id,customer_id,professional_id,date_of_request,date_of_completion,status,rating,comments,review_created_at
-1,1,2,3,2025-03-12 12:00 PM,,assigned,,,
-2,4,2,,2025-03-14 12:30 PM,"12/03/2025, 06:32 am",cancelled,,,
-3,2,4,,2025-03-12 2:00 PM,,requested,,,
