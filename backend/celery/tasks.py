@@ -1,9 +1,10 @@
 from celery import shared_task
 import flask_excel
-from backend.models import User, Role, Service, ServiceRequest
+from backend.models import User, Role, Service, ServiceRequest, db
 from backend.celery.mail_service import send_gchat_reminder, send_email 
 from flask import render_template
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
+import os
     
 @shared_task(bind = True, ignore_result = False)
 def create_csv(self):
@@ -19,7 +20,17 @@ def create_csv(self):
 @shared_task
 def send_service_reminders():
     pending_requests = ServiceRequest.query.filter(ServiceRequest.status == "assigned").all()
-    req_requests = ServiceRequest.query.with_entities(ServiceRequest.id, ServiceRequest.service_id, ServiceRequest.status).filter(ServiceRequest.status == "requested").distinct(ServiceRequest.service_id).all()
+    req_requests = (
+        db.session.query(
+            ServiceRequest.id, 
+            ServiceRequest.service_id, 
+            ServiceRequest.status
+        )
+        .join(Service, ServiceRequest.service_id == Service.id)
+        .filter(ServiceRequest.status == "requested")
+        .group_by(Service.name)
+        .all()
+    )
     if not pending_requests and not req_requests:
         return "No pending service requests for today."
 
