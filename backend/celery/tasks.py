@@ -5,6 +5,8 @@ from backend.celery.mail_service import send_gchat_reminder, send_email
 from flask import render_template
 from datetime import datetime, timedelta
 import os
+
+os.makedirs('./backend/celery/user_downloads/', exist_ok=True)
     
 @shared_task(bind = True, ignore_result = False)
 def create_csv(self):

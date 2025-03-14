@@ -1,5 +1,5 @@
 .venv
-user-downloads/
+user_downloads/
 *__pycache__/
 instance/
 celerybeat-schedule
